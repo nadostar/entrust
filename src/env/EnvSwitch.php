@@ -25,7 +25,11 @@ function envSwitch()
     	return 'beta';
     }
     
-    elseif(preg_match('/^10.160.158.24/', $hostname)){
+    elseif(preg_match('/^47.91.170.199/', $hostname)){
+        return 'real';
+    }
+
+    elseif(preg_match('/^47.52.23.236/', $hostname)){
         return 'real';
     }
 

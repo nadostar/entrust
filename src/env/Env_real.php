@@ -5,7 +5,7 @@
  * @package    env
  * @author     xing
  */
-define('BASE_DIR', realpath( '/home/irteamsu/www/entrust/' ).DIRECTORY_SEPARATOR);
+define('BASE_DIR', realpath( '/home/irteamsu/service/entrust/' ).DIRECTORY_SEPARATOR);
 
 class Env {
 
