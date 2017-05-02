@@ -9,7 +9,7 @@ define('BASE_DIR', realpath( '/home/irteamsu/service/entrust/' ).DIRECTORY_SEPAR
 
 class Env {
 
-    const APP_URL = 'http://47.91.170.199:10010/';
+    const APP_URL = 'http://47.91.170.199/';
 
     const APP_PATH = '/';
 
@@ -17,9 +17,9 @@ class Env {
 	
     const HSP_URL = "http://alpha-httpgw.hangame.com:18080/hsp/httpgw/nomad.json";
     
-    const SURVEY_URL = "http://47.91.170.199:10010/api/survey/?r={accesskey}&uid={uid}";
+    const SURVEY_URL = "http://47.91.170.199/api/survey/?r={accesskey}&uid={uid}";
     
-    const RECEIVE_URL = "http://47.91.170.199:10010/api/receive/?r={accesskey}&s={status}&uid={uid}";
+    const RECEIVE_URL = "http://47.91.170.199/api/receive/?r={accesskey}&s={status}&uid={uid}";
 
     /** 인증여부 */
     const IS_LOGIN_CHECK = true;
