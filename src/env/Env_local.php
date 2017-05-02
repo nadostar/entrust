@@ -5,7 +5,7 @@
  * @package    env
  * @author     xing
  */
-define('BASE_DIR', realpath( '/Users/nhn/Documents/workspace/puyo/entrustsurvey/' ).DIRECTORY_SEPARATOR);
+define('BASE_DIR', realpath( '/Users/nhn/Documents/backlog/Github/entrust/' ).DIRECTORY_SEPARATOR);
 
 class Env {
 

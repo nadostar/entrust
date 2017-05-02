@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `block` (
 -- link
 CREATE TABLE IF NOT EXISTS `link` (
 	`id` varchar(8) NOT NULL,
-	`key` int(11) NOT NULL,
+	`k` int(11) NOT NULL,
 	`name` varchar(255) NOT NULL,
 	`type` tinyint(1) NOT NULL DEFAULT 0,
 	`url` varchar(1024) NOT NULL,
@@ -61,19 +61,9 @@ CREATE TABLE IF NOT EXISTS `link` (
 	`created_at` datetime NOT NULL,
 	`updated_at` datetime NOT NULL,
 	`pid` varchar(8) NOT NULL,
-	PRIMARY KEY (`id`, `key`),
+	PRIMARY KEY (`id`, `k`),
 	KEY `idx_link_pid` (`pid`),
 	KEY `idx_link_type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- link_history
-CREATE TABLE IF NOT EXISTS `link_history` (
-	`accesskey` varchar(11) NOT NULL,
-	`kind` varchar(16) NOT NULL,
-	`uid` varchar(32) NOT NULL,
-	`disable` tinyint(1) NOT NULL DEFAULT 0,
-	`created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (`accesskey`, `kind`, `uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- link_history ver 2.0
@@ -105,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `partner` (
 	`created_at` datetime NOT NULL,
 	`updated_at` datetime NOT NULL,
 	`link_id` varchar(8) NOT NULL,
+	`pid` varchar(8) NOT NULL,
 	PRIMARY KEY (`id`),
 	KEY `idx_partner_link_id` (`link_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

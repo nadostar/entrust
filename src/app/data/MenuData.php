@@ -64,19 +64,19 @@ class MenuData
 
 	const LOG_ACCESS_ID = 402;
 	const LOG_ACCESS_NAME = 'Access logs';
-	const LOG_ACCESS_URL = 'support/accesslog/';
+	const LOG_ACCESS_URL = 'support/accessLog/';
 
 	const LOG_ADMIN_ID = 403;
 	const LOG_ADMIN_NAME = 'Admin logs';
-	const LOG_ADMIN_URL = 'support/adminlog/';
+	const LOG_ADMIN_URL = 'support/adminLog/';
 
 	const LOG_ERROR_REPORT_ID = 404;
 	const LOG_ERROR_REPORT_NAME = 'Error Reports';
-	const LOG_ERROR_REPORT_URL = 'support/errorlog/';
+	const LOG_ERROR_REPORT_URL = 'support/errorLog/';
 
 	const LOG_IP_ADDRESS_ID = 405;
 	const LOG_IP_ADDRESS_NAME = 'IP Block logs';
-	const LOG_IP_ADDRESS_URL = 'support/blocklog/';
+	const LOG_IP_ADDRESS_URL = 'support/blockLog/';
 
 	public static function getSystemMenu()
 	{
