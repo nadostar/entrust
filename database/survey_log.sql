@@ -56,16 +56,16 @@ CREATE TABLE IF NOT EXISTS `admin_log` (
  PARTITION admin_log_31 VALUES IN ('31') ENGINE = InnoDB)*/;
 
 -- access_log
-CREATE TABLE IF NOT EXISTS `access_log` (
-  `id` bigint(20) unsigned NOT NULL,
+CREATE TABLE `access_log` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `day` varchar(2) NOT NULL,
-  `pid` varchar(8) NOT NULL,
-  `kind` varchar(16) DEFAULT NULL,
-  `data` text DEFAULT NULL,
+  `accesskey` varchar(11) NOT NULL,
+  `kind` tinyint(1) NOT NULL DEFAULT '0',
+  `data` text,
   `ip_address` varchar(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`,`day`)
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
 /*!50500 PARTITION BY LIST COLUMNS(`day`)
 (PARTITION access_log_01 VALUES IN ('01') ENGINE = InnoDB,
  PARTITION access_log_02 VALUES IN ('02') ENGINE = InnoDB,
