@@ -80,8 +80,8 @@
 <script src="<?php url('script/entrust.js'); ?>"></script>
 <script type="text/javascript">
 var urls = {
-    'search': "<?php url('support/adminlog/?m=search', true, false); ?>",
-    'viewer': "<?php url('support/adminlog/?m=viewer', true, false); ?>",
+    'search': "<?php url('support/adminLog/?m=search', true, false); ?>",
+    'viewer': "<?php url('support/adminLog/?m=viewer', true, false); ?>",
 };
 
 var global = new Entrust(urls);
