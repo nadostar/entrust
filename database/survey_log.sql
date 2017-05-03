@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `admin_log` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `day` varchar(2) NOT NULL,
   `admin_id` varchar(7) DEFAULT NULL,
-  `category` varchar(32) DEFAULT NULL,
+  `category` varchar(3) DEFAULT NULL,
   `data` varchar(1024) DEFAULT NULL,
   `ip_address` varchar(16) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `admin_log` (
 CREATE TABLE `access_log` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `day` varchar(2) NOT NULL,
-  `accesskey` varchar(11) NOT NULL,
+  `accesskey` varchar(16) NOT NULL,
   `kind` tinyint(1) NOT NULL DEFAULT '0',
   `data` text,
   `ip_address` varchar(16) DEFAULT NULL,

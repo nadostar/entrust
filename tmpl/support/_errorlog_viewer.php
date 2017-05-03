@@ -43,9 +43,7 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label">Data</label>
                     <div class="col-lg-9">
-                        <p class="form-control-static">
-                            <pre><?php json_format($log['data']);?></pre>
-                        </p>
+                        <pre><?php json_format($log['data']);?></pre>
                     </div>
                 </div>
                 <div class="form-group">

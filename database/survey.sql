@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `project` (
 -- block
 CREATE TABLE IF NOT EXISTS `block` (
 	`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-	`accesskey` varchar(11) NOT NULL,
+	`accesskey` varchar(16) NOT NULL,
 	`ip_address` varchar(16) NOT NULL,
 	`data` text NOT NULL,
 	`created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `link` (
 -- link_history ver 2.0
 CREATE TABLE IF NOT EXISTS `link_history` (
 	`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-	`accesskey` varchar(11) NOT NULL,
+	`accesskey` varchar(16) NOT NULL,
 	`progress` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: Survey, 1: Complate, 2: Screenout, 3: Quotafull',
 	`uid` varchar(32) NOT NULL,
 	`disable` tinyint(1) NOT NULL DEFAULT 0,
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `partner` (
 
 -- access_keys
 CREATE TABLE IF NOT EXISTS `access_keys` (
-	`access_key` varchar(11) NOT NULL,
+	`access_key` varchar(16) NOT NULL,
 	`pid` varchar(8) NOT NULL,
 	`link_id` varchar(8) NOT NULL,
 	`link_key` int(11) NOT NULL,

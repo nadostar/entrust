@@ -87,4 +87,47 @@ class MasterData {
 	public static function getProgress($val) {
 		return self::$progress_map[$val];
 	}
+
+	private static $accesslog_category_map = array(
+		0 => 'Survey',
+		1 => 'Complate',
+		2 => 'Screenout',
+		3 => 'Quotafull',
+	);
+
+	public static function getAccessLogCategoryMap() {
+		return self::$accesslog_category_map;
+	}
+
+	private static $adminlog_category_map = array(
+		'000' => 'Login',
+
+		'010' => 'Admin added',
+		'011' => 'Admin changed',
+		'012' => 'Admin removed',
+		'013' => 'Admin password init',
+		'014' => 'Password changed',
+
+		'020' => 'Permission added',
+		'021' => 'Permission changed',
+		'022' => 'Permission removed',
+		
+		'030' => 'Project added',
+		'031' => 'Project changed',
+		
+		'040' => 'Link added',
+		'041' => 'Link changed',
+		'042' => 'Generate accesskey',
+
+		'051' => 'Partner added',
+		'052' => 'Partner changed',
+	);
+
+	public static function getAdminLogCategoryMap(){
+		return self::$adminlog_category_map;
+	}
+
+	public static function getAdminLogCategory($val) {
+		return self::$adminlog_category_map[$val];
+	}
 }

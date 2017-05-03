@@ -27,8 +27,8 @@
         <div class="row">
             <div class="col-sm-4">
                 <div class="form-group">
-                    <label class="control-label" for="admin">Admin ID</label>
-                    <input type="text" name="admin" value="" placeholder="ID" class="form-control">
+                    <label class="control-label" for="admin">Project No</label>
+                    <input type="text" name="pid" value="" placeholder="ID" class="form-control">
                 </div>
             </div>
             <div class="col-sm-4">
@@ -115,31 +115,26 @@ $(function(){
         $(this).val('');
     });
 
-    /*
-    $('search-form')
-        .on('submit', false)
-        .find('button')
-        .click(function(){
-            var $button = $(this);
+    $('search-form').on('submit', false).find('button').click(function(){
+        var $button = $(this);
 
-            var $form = $button.parents('form');
-            var params = $form.serializeJSON();
+        var $form = $button.parents('form');
+        var params = $form.serializeJSON();
 
-            console.log(urls['search'], params);
+        console.log(urls['search'], params);
 
-            $.post(urls['search'], params)
-                .done(function(response){
-                    console.log(response);
-                    $('#result').html(response);
-                })
-                .error(function(response, textStatus, error){
-                    console.log(response, textStatus, error);
-                    toastr.error(response.responseText, error);
-                });
+        $.post(urls['search'], params)
+            .done(function(response){
+                console.log(response);
+                $('#result').html(response);
+            })
+            .error(function(response, textStatus, error){
+                console.log(response, textStatus, error);
+                toastr.error(response.responseText, error);
+            });
 
-            return false;
-        });
-    */
+        return false;
+    });
 
     $('body')
         .on('click', "button.search-form", function(){

@@ -24,6 +24,10 @@ class Action_AdminLog extends _Action_Support {
 		$this->action = $this->getQuery('m');
 
 		$this->registValidatorMap('page');
+		$this->registValidatorMap('admin_id');
+		$this->registValidatorMap('category');
+		$this->registValidatorMap('start_time');
+		$this->registValidatorMap('end_time');
 		$this->registValidatorMap('limit');
 
 		$this->registValidatorMap('id');
@@ -60,6 +64,10 @@ class Action_AdminLog extends _Action_Support {
 	}
 
 	private function search() {
+		$admin_id 	= $this->getQuery('admin_id');
+		$category 	= $this->getQuery('category');
+		$start_time = $this->getQuery('start_time');
+		$end_time 	= $this->getQuery('end_time');
 		$limit = $this->getQuery('limit');
 		$limit = empty($limit) ? 100 : Env::PAGE_LIST;
 
@@ -68,13 +76,17 @@ class Action_AdminLog extends _Action_Support {
 
 		$pager = new SimplePager($page, $limit);
 
-		$data = Logic_Log::getAdminLogDataLimited($this->log_db, $pager->limit(), $pager->offset());
+		$data = Logic_Log::getAdminLogDataLimited($this->log_db, $admin_id, $category, $start_time, $end_time, $pager->limit(), $pager->offset());
 
 		$this->output->assign('data', $data['list']);
 
 		$pager->setPager($data['count'], self::PAGER_ARM_LENGTH);
 
 		$params = array(
+			'admin_id' => $admin_id,
+			'category' => $category,
+			'start_time' => $start_time,
+			'end_time' => $end_time,
 			'limit' => $limit
 		);
 

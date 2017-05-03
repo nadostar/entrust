@@ -9,7 +9,7 @@ class Action_Event extends _Action_Support {
 
 	protected function doAction() {
 		$target = array(
-			'tree' => 'Survey',
+			'tree' => 'Entrust',
 			'menu' => $this->menu_allow_no
 		);
 		

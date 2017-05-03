@@ -28,7 +28,7 @@
             <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label" for="admin">Admin ID</label>
-                    <input type="text" name="admin" value="" placeholder="ID" class="form-control">
+                    <input type="text" name="admin_id" value="" placeholder="ID" class="form-control">
                 </div>
             </div>
             <div class="col-sm-4">
@@ -36,6 +36,9 @@
                     <label class="control-label" for="category">Category</label>
                     <select name="category" class="input-large form-control" >
                         <option value="">===========</option>
+                        <?php foreach (MasterData::getAdminLogCategoryMap() as $k => $v): ?>
+                        <option value="<?php echo $k; ?>"><?php echo $v; ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>
@@ -113,6 +116,27 @@ $(function(){
 
     $('.daterange').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
+    });
+
+    $('search-form').on('submit', false).find('button').click(function(){
+        var $button = $(this);
+
+        var $form = $button.parents('form');
+        var params = $form.serializeJSON();
+
+        console.log(urls['search'], params);
+
+        $.post(urls['search'], params)
+            .done(function(response){
+                console.log(response);
+                $('#result').html(response);
+            })
+            .error(function(response, textStatus, error){
+                console.log(response, textStatus, error);
+                toastr.error(response.responseText, error);
+            });
+
+        return false;
     });
 
     $('body')

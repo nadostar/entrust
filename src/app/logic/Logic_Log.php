@@ -5,12 +5,24 @@
 */
 class Logic_Log extends _Logic_App {
 	
-	public static function getAdminLogDataLimited(_DatabaseAccess $dao, $limit, $offset) {
+	public static function getAdminLogDataLimited(_DatabaseAccess $dao, $admin_id, $category, $start_time, $end_time, $limit, $offset) {
 		$ret = array();
 
-		$sql = "SELECT * FROM `admin_log` ORDER BY `id` DESC LIMIT ? OFFSET ?";
+		$sql = "SELECT * FROM `admin_log` WHERE 1 = 1 ";
+		
+		if(!empty($admin_id)) {
+			$sql .= sprintf(" AND `admin_id` = '%s'", $admin_id);
+		}
 
+		if(strlen($category) > 0) {
+			$sql .= sprintf(" AND `category` = '%s'", $category);	
+		}
 
+		if(!empty($start_time) || !empty($end_time)) {
+			$sql .= sprintf(" AND `created_at` BETWEEN '%s' AND '%s'", $start_time, $end_time);	
+		}
+
+		$sql .= "ORDER BY `id` DESC LIMIT ? OFFSET ?";
 		$param = array($limit, $offset);
 
 		$ret['list'] = $dao->selectArrayFoundRows($sql, $param);
@@ -27,11 +39,24 @@ class Logic_Log extends _Logic_App {
 		return $dao->selectOne($sql, $param);
 	}
 
-	public static function getAccessLogDataLimited(_DatabaseAccess $dao, $limit, $offset) {
+	public static function getAccessLogDataLimited(_DatabaseAccess $dao, $accesskey, $kind, $start_time, $end_time, $limit, $offset) {
 		$ret = array();
 
-		$sql = "SELECT * FROM `access_log` ORDER BY `id` DESC LIMIT ? OFFSET ?";
+		$sql = "SELECT * FROM `access_log` WHERE 1 = 1 ";
 
+		if(!empty($accesskey)) {
+			$sql .= sprintf(" AND `accesskey` = '%s'", $accesskey);
+		}
+
+		if(strlen($kind) > 0) {
+			$sql .= sprintf(" AND `kind` = %d", $kind);
+		}
+
+		if(!empty($start_time) || !empty($end_time)) {
+			$sql .= sprintf(" AND `created_at` BETWEEN '%s' AND '%s'", $start_time, $end_time);	
+		}
+
+		$sql .= " ORDER BY `id` DESC LIMIT ? OFFSET ?";
 
 		$param = array($limit, $offset);
 

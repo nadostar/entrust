@@ -20,6 +20,10 @@ class Action_AccessLog extends _Action_Support {
 		$this->action = $this->getQuery('m');
 
 		$this->registValidatorMap('page');
+		$this->registValidatorMap('accesskey');
+		$this->registValidatorMap('category');
+		$this->registValidatorMap('start_time');
+		$this->registValidatorMap('end_time');
 		$this->registValidatorMap('limit');
 
 		$this->registValidatorMap('id');
@@ -57,7 +61,12 @@ class Action_AccessLog extends _Action_Support {
 	}
 
 	private function search() {
-		$limit = $this->getQuery('limit');
+		$accesskey 	= $this->getQuery('accesskey');
+		$category 	= $this->getQuery('category');
+		$start_time = $this->getQuery('start_time');
+		$end_time 	= $this->getQuery('end_time');
+		$limit 		= $this->getQuery('limit');
+
 		$limit = empty($limit) ? 100 : Env::PAGE_LIST;
 
 		$page = $this->getQuery('page');
@@ -65,13 +74,17 @@ class Action_AccessLog extends _Action_Support {
 
 		$pager = new SimplePager($page, $limit);
 		
-		$data = Logic_Log::getAccessLogDataLimited($this->log_db, $pager->limit(), $pager->offset());
+		$data = Logic_Log::getAccessLogDataLimited($this->log_db, $accesskey, $category, $start_time, $end_time, $pager->limit(), $pager->offset());
 
 		$this->output->assign('data', $data['list']);
 
 		$pager->setPager($data['count'], self::PAGER_ARM_LENGTH);
 
 		$params = array(
+			'accesskey' => $accesskey,
+			'category' => $category,
+			'start_time' => $start_time,
+			'end_time' => $end_time,
 			'limit' => $limit
 		);
 

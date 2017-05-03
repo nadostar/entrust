@@ -78,6 +78,7 @@ class Action_Receive extends _Action_Api {
 			$error["message"] = "Invalid accesskey.";
 
 			$this->sendJsonResult($error);
+
 			exit();
 		}
 
@@ -193,6 +194,7 @@ class Action_Receive extends _Action_Api {
 			if($history['progress'] == 0) {
 				if(Logic_LinkHistory::updateLinkHistoryByProgress($this->master_db, $history['id'], $this->receive_progress[$kind])) {
 					Logic_Stat::recordStatData($this->master_db, $kind, $accesskey);
+					Logic_Log::accesslog($this->log_db, $key, $this->receive_progress[$kind], $params, $this->ip_address);
 				}
 			}
 		}
@@ -202,7 +204,9 @@ class Action_Receive extends _Action_Api {
 		Logic_Log::errorlog($this->log_db, $data);
 	}
 
-	private function jumpToPartnerRedirectUrl($url, $message = '') {
-
+	private function jumpToPage($url, $message = '') {
+		$this->redirect_url = $url;
+		$this->redirect();
+		exit();
 	}
 }

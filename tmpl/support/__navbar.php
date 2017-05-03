@@ -49,11 +49,11 @@
                 $menu_array = $LOGIN_USER->getEnableEntrustMenu();
                 if(count($menu_array) > 0):
             ?>
-            <li>
+            <li class="<?php if($target['tree'] == 'Entrust') es('active')?>">
                 <a href="#"><i class="fa fa-users"></i> <span class="nav-label">Entrust</span><span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level collapse">
                     <?php foreach ($menu_array as $menu): ?>
-                    <li><a href="<?php es(Env::APP_URL.$menu['url']); ?>"><?php es($menu['name']); ?></a></li>    
+                    <li class="<?php if($target['menu'] == $menu['id']) es('active')?>"><a href="<?php es(Env::APP_URL.$menu['url']); ?>"><?php es($menu['name']); ?></a></li>    
                     <?php endforeach; ?>
                 </ul>
             </li>

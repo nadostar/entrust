@@ -37,7 +37,8 @@ class Action_Project extends _Action_Support {
 			$this->registValidatorMap('ir', 		'Validator_PositiveNumber', 'IR is required.');
 			$this->registValidatorMap('cpi', 		'Validator_Input', 			'CPI($) is required.');
 			$this->registValidatorMap('sample', 	'Validator_PositiveNumber', 'Sample is required.');
-			$this->registValidatorMap('free', 		'Validator_PositiveNumber', 'Free is required.');
+			//$this->registValidatorMap('free', 		'Validator_PositiveNumber', 'Free is required.');
+			$this->registValidatorMap('free');
 			$this->registValidatorMap('start_at', 	'Validator_Input', 			'Start Date is required.');
 			$this->registValidatorMap('end_at', 	'Validator_Input', 			'End Date is required.');
 			$this->registValidatorMap('invoice');
@@ -115,7 +116,7 @@ class Action_Project extends _Action_Support {
 			'sales' 	=> $this->getQuery('sales'),
 			'type' 		=> $this->getQuery('type'),
 			'sample' 	=> $this->getQuery('sample'),
-			'free' 		=> $this->getQuery('free'),
+			'free' 		=> empty($this->getQuery('free'))? 0 : $this->getQuery('free'),
 			'ir' 		=> $this->getQuery('ir'),
 			'cpi' 		=> $this->getQuery('cpi'),
 			'ip_access' => $this->getQuery('ip_access'),

@@ -61,8 +61,6 @@ class Action_Survey extends _Action_Api {
 	private function generateURL($url, $param=array()){
 		$index=1;
 		foreach ($param as $str) {
-			LogManager::debug($str);
-			LogManager::debug($url);
 			$url = str_replace('{'.($index++).'}', $str, $url);
 		}
 		return $url;
@@ -82,7 +80,7 @@ class Action_Survey extends _Action_Api {
 			);
 
 			$this->errorlog($errordata);
-			exit();
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		if(strlen($accesskey) != 11) {
@@ -95,7 +93,7 @@ class Action_Survey extends _Action_Api {
 			);
 
 			$this->errorlog($errordata);
-			exit();
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		if(empty($uid)) {
@@ -108,7 +106,7 @@ class Action_Survey extends _Action_Api {
 			);
 
 			$this->errorlog($errordata);
-			exit();
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 	}
 
@@ -127,8 +125,7 @@ class Action_Survey extends _Action_Api {
 			);
 
 			$this->errorlog($errordata);
-
-			$this->jumpToPage('');
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		return $data;
@@ -150,8 +147,7 @@ class Action_Survey extends _Action_Api {
 			);
 
 			$this->errorlog($errordata);
-
-			$this->jumpToPage('');
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 
 		// verify project status (0: Pending, 1: Active, 2: Closed)
@@ -165,8 +161,7 @@ class Action_Survey extends _Action_Api {
 			);
 
 			$this->errorlog($errordata);
-
-			$this->jumpToPage('');
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 
 		// verify survey ip
@@ -190,7 +185,7 @@ class Action_Survey extends _Action_Api {
 					$this->errorlog($errordata);
 				}
 
-				$this->jumpToPage('');
+				$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 			} else {
 				$blockdata = array(
 					"pid" => $accesskey["pid"],
@@ -216,8 +211,7 @@ class Action_Survey extends _Action_Api {
 			);
 
 			$this->errorlog($errordata);
-			
-			$this->jumpToPage('');
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 
 		// the partner status closed
@@ -240,7 +234,7 @@ class Action_Survey extends _Action_Api {
 			// );
 
 			// $this->errorlog($errordata);
-			$this->jumpToPage('');
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 		
 		$history = Logic_LinkHistory::getLinkHistoryById($this->slave_db, $params['r'], $params['uid']);
