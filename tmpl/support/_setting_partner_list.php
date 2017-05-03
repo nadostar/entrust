@@ -29,7 +29,7 @@
             <tr>
                 <td><a href="#" class="viewer read" data-id="<?php es($row['id']); ?>" data-pid="<?php es($row['pid']); ?>"><?php es($row['id']); ?></a></td>
                 <td><?php es($row['name']);?></td>
-                <td><?php es($row['country']);?></td>
+                <td><?php echo MasterData::getCountry($row['country']); ?></td>
                 <td><?php es($row['link_name']);?></td>
                 <td><?php es($row['sample_size']);?></td>
                 <td><?php es($row['request_limit']);?></td>

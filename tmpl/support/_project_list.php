@@ -31,7 +31,7 @@
             <tr>
                 <td><a href="#" class="viewer read" data-id="<?php es($row['id']); ?>"><?php es($row['id']);?></a></td>
                 <td><?php es($row['name']); ?></td>
-                <td><?php es($row['country']);?></td>
+                <td><?php echo MasterData::getCountry($row['country']); ?></td>
                 <td><?php es($row['sales']);?></td>
                 <td><?php es($row['sample']);?></td>
                 <td><?php es($row['cpi']);?></td>

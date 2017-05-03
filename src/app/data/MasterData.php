@@ -25,11 +25,29 @@ class MasterData {
 	}
 
 	private static $country_map = array(
-		'CN' => 'China',
-		'JP' => 'Japan',
-		'KR' => "Korea",
-		'US' => 'United States',
-		'UK' => 'United Kindom',
+		'01' => 'Arab',
+		'02' => 'Argentina',
+		'03' => "Brazil",
+		'04' => 'China',
+		'05' => 'France',
+		'06' => 'Germany',
+		'07' => 'Hongkong',
+		'08' => 'India',
+		'09' => 'Indonesia',
+		'10' => 'Italy',
+		'11' => 'Japan',
+		'12' => 'Korea',
+		'13' => 'Laos',
+		'14' => 'Malaysia',
+		'15' => 'Myanmar',
+		'16' => 'Philippines',
+		'17' => 'Singapore',
+		'18' => 'South Africa',
+		'19' => 'Taiwan',
+		'20' => 'Thailand',
+		'21' => 'UK',
+		'22' => 'US',
+		'23' => 'Vietnam',
 	);
 
 	public static function getCountryMap() {
