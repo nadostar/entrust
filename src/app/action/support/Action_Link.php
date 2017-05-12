@@ -108,6 +108,8 @@ class Action_Link extends _Action_Support {
 	}
 
 	private function saveChanges() {
+		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
+
 		$category = null;
 
 		$id = $this->getQuery('id');
@@ -124,24 +126,10 @@ class Action_Link extends _Action_Support {
 		);
 
 		if($params['type'] == 0) {
-			$params['k'] = 0;
-			$params['url'] = trim($this->getQuery('url'));
+			$params['id'] = Logic_Generate::generateId($this->slave_db, 'link');
 		} else {
-			$file_name = $_FILES['attachment']['name'];
-			$tmp_file_name = $_FILES['attachment']['tmp_name'];
-			$info = pathinfo($file_name);
-			$ext = strtolower($info['extension']);
-			
-			$rf = fopen($tmp_file_name, "r");
-			$frd = fread($rf, filesize($tmp_file_name));
-			$url_array = explode("\n", $frd);
-						
-			fclose($rf);
-			
-			$params['urls'] = $url_array;
+			$params['id'] = Logic_Generate::generateId($this->slave_db, 'link', 'M');
 		}
-
-		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
 
 		if(strlen($this->error_msg) > 0) {
 			$result_map['status'] = false;
@@ -150,27 +138,40 @@ class Action_Link extends _Action_Support {
 			$result = false;
 
 			if(empty($id)) {
-				$category = Category::LINK_NEW;
-
-				if($params['type'] == 0) {
-					$params['id'] = Logic_Generate::generateId($this->slave_db, 'link');
-				} else {
-					$params['id'] = Logic_Generate::generateId($this->slave_db, 'link', 'M');
-				}
-				
 				$result = Logic_Link::insertLinkData($this->master_db, $params);
 			} else {
-				$category = Category::LINK_CHANGE;
-
 				$params['id'] = $id;
 				$result = Logic_Link::updateLinkData($this->master_db, $params);
+
 			}
 
-			if($result) {
-				Logic_Log::adminlog($this->log_db, $this->login_session->getAdminId(), $category, $params, $this->ip_address);
+			$useful_link_data = array(
+				'link_id' => $params['id']
+			);
+
+			if($params['type'] == 0) {
+				$useful_link_data['url'] = array(trim($this->getQuery('url')));
 			} else {
-				$result_map['status'] = false;
-				$result_map['message'] = 'transaction fail!';
+				$file_name = $_FILES['attachment']['name'];
+				$tmp_file_name = $_FILES['attachment']['tmp_name'];
+				$info = pathinfo($file_name);
+				$ext = strtolower($info['extension']);
+				
+				$rf = fopen($tmp_file_name, "r");
+				$frd = fread($rf, filesize($tmp_file_name));
+				$url_array = explode("\n", $frd);
+							
+				fclose($rf);
+				
+				$useful_link_data['url'] = $url_array;
+			}
+
+			LogManager::debug($useful_link_data);
+
+			if(Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data)) {
+				LogManager::debug("ok");
+			} else {
+				LogManager::debug("no");
 			}
 		}
 
@@ -210,9 +211,9 @@ class Action_Link extends _Action_Support {
 
 		$params = array();
 		foreach ($data as $row) {
-			$accesskey = Util_GenerateId::generateId(11);
+			$accesskey = Util_GenerateId::generateId(16);
 			$params[] = array(
-				'access_key' => $accesskey,
+				'accesskey' => $accesskey,
 				'pid' => $row['pid'],
 				'link_id' => $row['id'],
 				'link_key' => $row['k']
@@ -225,7 +226,7 @@ class Action_Link extends _Action_Support {
 		$result_map = array('status' => true, 'message' => 'Generate accesskey success!');
 
 		if(Logic_AccessKeys::insertAccessKeysData($this->master_db, $params)) {
-			Logic_Project::changeProjectStatus($this->master_db, $pid, 1);
+			//Logic_Project::changeProjectStatus($this->master_db, $pid, 1);
 
 			$statdata = array(
 				'pid' => $pid,
@@ -234,7 +235,7 @@ class Action_Link extends _Action_Support {
 
 			Logic_Stat::insertStatData($this->master_db, $statdata);
 
-			Logic_Log::adminlog($this->log_db, $this->login_session->getAdminId(), Category::ACCESSKEY_GENERATE, $params, $this->ip_address);
+			//Logic_Log::adminlog($this->log_db, $this->login_session->getAdminId(), Category::ACCESSKEY_GENERATE, $params, $this->ip_address);
 		} else {
 			$result_map['status'] = false;
 			$result_map['message'] = 'transaction fail!';		
@@ -259,7 +260,7 @@ class Action_Link extends _Action_Support {
 		$url = Env::SURVEY_URL;
 
 		foreach ($data as $row) {
-			$tmp['url'] = str_replace('{accesskey}', $row['access_key'], $url);
+			$tmp['url'] = str_replace('{accesskey}', $row['accesskey'], $url);
 			LogManager::debug($tmp['url']);
 			$this->output->assignRow($tmp['url']);
 		}

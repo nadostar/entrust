@@ -7,23 +7,14 @@ class Logic_Partner extends _Logic_App {
 	public static function getPartnerDataLimited(_DatabaseAccess $dao, $pid, $limit, $offset) {
 		$ret = array();
 
-		$sql = "select 	`id`, 
-						`name`, 
-						`country`, 
-						`complate_url`, 
-						`screenout_url`, 
-						`quotafull_url`, 
-						`status`, 
-						`sample_size`, 
-						`request_limit`, 
-						`updated_at`, 
-						`pid`, 
-						`link_id`,
-						(select distinct `name` from `link` where `id` = `link_id`) AS link_name,
-						(select `name` from `project` where `id` = `pid`) AS project_name
-  				 from `partner` where `pid` = ?";
+		$sql = "SELECT partner.*,
+				(SELECT `name` FROM `link` WHERE `id` = `link_id`) AS `link_name`,
+				(SELECT `name` FROM `project` WHERE `id` = `pid`) AS `project_name`,
+				(SELECT COUNT(1) FROM `snapshot` WHERE `partner_id` = `id`) AS 'found'
+				FROM `partner`
+				WHERE `pid` = ?";
 
-		$sql .= " limit ? offset ?";
+		$sql .= " LIMIT ? OFFSET ?";
 
 		$param = array($pid, $limit, $offset);
 
@@ -56,6 +47,24 @@ class Logic_Partner extends _Logic_App {
 			$condition_param = array($data['id']);
 
 			$dao->update('partner', $data, $condition, $condition_param);
+		} catch (Exception $e) {
+			LogManager::error($e->getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+	public static function changePartnerStatus(_DatabaseAccess $dao, $id, $status) {
+		try {
+			$param = array(
+				'status' => $status
+			);
+
+			$condition = "id = ?";
+			$condition_param = array($id);
+
+			$dao->update('partner', $param, $condition, $condition_param);
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
 			return false;

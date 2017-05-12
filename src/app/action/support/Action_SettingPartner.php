@@ -33,7 +33,9 @@ class Action_SettingPartner extends _Action_Support {
 		$this->registValidatorMap('screenout', 		'Validator_Input', 'Screen out URL is required.');
 		$this->registValidatorMap('quotafull', 		'Validator_Input', 'Quotafull URL is required.');
 		$this->registValidatorMap('sample_size', 	'Validator_Input', 'Sample size is required.');
-		$this->registValidatorMap('request_limit', 	'Validator_Input', 'Request limit is required.');
+		$this->registValidatorMap('hits_limit', 	'Validator_Input', 'Hits limit is required.');
+
+		$this->registValidatorMap('status');
 
 		try {
 			$this->validParam();
@@ -55,6 +57,15 @@ class Action_SettingPartner extends _Action_Support {
 				break;
 			case 'viewer':
 				$this->viewer();
+				break;
+			case 'control':
+				$this->control();
+				break;
+			case 'accesskey':
+				$this->accesskey();
+				break;
+			case 'show':
+				$this->show();
 				break;
 			default:
 				$target = array(
@@ -107,7 +118,7 @@ class Action_SettingPartner extends _Action_Support {
 			'screenout_url' => $this->getQuery('screenout'),
 			'quotafull_url' => $this->getQuery('quotafull'),
 			'sample_size' 	=> $this->getQuery('sample_size'),
-			'request_limit' => $this->getQuery('request_limit'),
+			'hits_limit' 	=> $this->getQuery('hits_limit'),
 			'link_id' 		=> $this->getQuery('link_id'),
 			'pid' 			=> $this->getQuery('pid'),
 		);
@@ -155,7 +166,7 @@ class Action_SettingPartner extends _Action_Support {
 			'screenout_url' => '',
 			'quotafull_url' => '',
 			'sample_size' 	=> '0',
-			'request_limit' => '0',
+			'hits_limit' => '0',
 			'link_id' 		=> '',
 			'pid' 			=> $pid,
 		);
@@ -165,12 +176,96 @@ class Action_SettingPartner extends _Action_Support {
 		}
 
 		$project_data = Logic_Project::getProjectDataMap($this->slave_db);
-		$link_data = Logic_Link::getLinkDataByPid($this->slave_db, $pid);
+		$link_data = Logic_Link::getLinkDataByProjectId($this->slave_db, $pid);
 
 		$this->output->assign('project_data', $project_data);
 		$this->output->assign('link_data', $link_data);
 		$this->output->assign('partner', $partner);
 
 		$this->output->setTmpl('support/_setting_partner_viewer.php');
+	}
+
+	private function control(){
+		$id = $this->getQuery('id');
+		$status = $this->getQuery('status');
+
+		// status 0:active, 1:closed
+		// status toggle
+		switch ($this->getQuery('status')) {
+			case '0':
+				$status = 1;
+				break;
+			case '1':
+				$status = 0;
+				break;
+		}
+
+		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
+		if(!Logic_Partner::changePartnerStatus($this->master_db, $id, $status)) {
+			$result_map['status'] = false;
+			$result_map['message'] = 'transaction fail!';
+		}
+
+		$this->sendJsonResult($result_map);
+	}
+
+	private function accesskey() {
+		$id = $this->getQuery('id');
+
+		$result_map = array('status' => true, 'message' => 'Generate accesskey success!');
+
+		$accesskey = Util_GenerateId::generateId(16);
+
+		$partnerdata = Logic_Partner::getPartnerDataById($this->slave_db, $id);
+	
+		$data = array(
+			'accesskey' => $accesskey,
+			'pid' => $partnerdata['pid'],
+			'link_id' => $partnerdata['link_id'],
+			'partner_id' => $partnerdata['id']
+		);
+	
+		if(Logic_Snapshot::insertSnapshotData($this->master_db, $data)) {
+			Logic_Project::changeProjectStatus($this->master_db, $data['pid'], $active = 1);
+
+			$statdata = array(
+				'pid' => $data['pid'],
+				'link_id' => $data['link_id']
+			);
+
+			Logic_Stat::insertStatData($this->master_db, $statdata);
+		} else {
+			$result_map['status'] = false;
+			$result_map['message'] = 'transaction fail!';	
+		}
+
+		$this->sendJsonResult($result_map);
+	}
+
+	private function show() {
+		$id = $this->getQuery('id');
+
+		$snapshot = Logic_Snapshot::getSnapshotDataByPartnerId($this->slave_db, $id);
+		
+		LogManager::debug($snapshot);
+
+		$surveylink = Env::SURVEY_URL;
+		$joinin_url = str_replace('{accesskey}', $snapshot['accesskey'], $surveylink);
+
+		$receivelink = Env::RECEIVE_URL;
+		$complate_url = strtr($receivelink, array('{accesskey}' => $snapshot['accesskey'], '{status}' => 'c'));
+		$screenout_url = strtr($receivelink, array('{accesskey}' => $snapshot['accesskey'], '{status}' => 's'));
+		$quotafull_url = strtr($receivelink, array('{accesskey}' => $snapshot['accesskey'], '{status}' => 'q'));
+
+		$data = array(
+			'joinin_url' => $joinin_url,
+			'complate_url' => $complate_url,
+			'screenout_url' => $screenout_url,
+			'quotafull_url' => $quotafull_url
+		);
+
+		LogManager::debug($data);
+
+		$this->sendJsonResult($data);
 	}
 }

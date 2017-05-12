@@ -47,7 +47,7 @@ class Logic_Analytics extends _Logic_App {
 						(SELECT `name` FROM `link` WHERE `id` = `partner`.`link_id`) AS `link`,
 						`partner`.`status` AS `status`,
 						CONCAT(`complate_count`, '/', `sample_size`) AS `sample_size`,
-						CONCAT((SELECT COUNT(1) FROM `link_history` WHERE `accesskey` = (SELECT `access_key` FROM `access_keys` WHERE `pid` = `stat`.`pid` and `link_id` = `stat`.`link_id`)), '/', `request_limit`) AS `request_size`,
+						CONCAT((SELECT COUNT(1) FROM `link_history` WHERE `accesskey` = (SELECT `accesskey` FROM `accesskeys` WHERE `pid` = `stat`.`pid` and `link_id` = `stat`.`link_id`)), '/', `request_limit`) AS `request_size`,
 						`complate_count` AS `c`,
 						`screenout_count` AS `s`,
 						`quotafull_count` AS `q`,
@@ -74,8 +74,8 @@ class Logic_Analytics extends _Logic_App {
 						`progress`,
 						`uid`,
 						`created_at`
-				  FROM `link_history`, `access_keys`
-				 WHERE `link_history`.`accesskey` = `access_keys`.`access_key`
+				  FROM `link_history`, `accesskeys`
+				 WHERE `link_history`.`accesskey` = `accesskeys`.`accesskey`
 				   AND `pid` = ?
 				   AND `link_id` = ?
 				 ORDER BY `id` DESC LIMIT ? OFFSET ?";
@@ -96,8 +96,8 @@ class Logic_Analytics extends _Logic_App {
 						`ip_address`,
 						`data`,
 						`created_at`
-				  FROM  `block`, `access_keys`
-				 WHERE  `block`.`accesskey` = `access_keys`.`access_key`
+				  FROM  `block`, `accesskeys`
+				 WHERE  `block`.`accesskey` = `accesskeys`.`accesskey`
 				   AND  `pid` = ?
 				   AND  `link_id` = ?
 				 ORDER BY `id` DESC LIMIT ? OFFSET ?";

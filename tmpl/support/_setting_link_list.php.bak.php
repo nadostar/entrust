@@ -5,7 +5,7 @@
                 <button class="page-prev btn btn-white btn-sm" data-params="<?php es($pager['prev']); ?>" <?php if(!$pager['prev']) es("disabled");?>><i class="fa fa-arrow-left"></i></button>
                 <button class="page-next btn btn-white btn-sm" data-params="<?php es($pager['next']); ?>" <?php if(!$pager['next']) es("disabled");?>><i class="fa fa-arrow-right"></i></button>
             </div>
-            <h2><?php es($pager['total']); ?> links found</h2>
+            <button class="new-form btn btn-primary" data-pid="<?php es($pager['pid']);?>"><i class="fa fa-edit"></i> New Link</button>
         </div>
     </div>
     <div class="mail-box">
@@ -28,8 +28,8 @@
                 <td><?php echo MasterData::getLinkType($row['type']); ?></td>
                 <td><?php es($row['updated_at']);?></td>
                 <td>
-                    <button type="button" class="accesskey btn btn-gray btn-xs" data-id="<?php es($row['id']); ?>" <?php if($row['found'] > 0) es("disabled"); ?>><i class="fa fa-retweet"></i> AccessKey</button>
-                    <button type="button" class="download btn btn-gray btn-xs" data-id="<?php es($row['id']); ?>" <?php if($row['found'] == 0) es("disabled"); ?>><i class="fa fa-download"></i> Download</button>
+                    <button type="button" class="accesskey btn btn-gray btn-xs" data-id="<?php es($row['id']); ?>" <?php if($row['accesskey'] > 0) es("disabled"); ?>><i class="fa fa-retweet"></i> AccessKey</button>
+                    <button type="button" class="download btn btn-gray btn-xs" data-id="<?php es($row['id']); ?>" <?php if($row['accesskey'] == 0) es("disabled"); ?>><i class="fa fa-download"></i> Download</button>
                 </td>
             </tr>
             <?php endforeach; ?>

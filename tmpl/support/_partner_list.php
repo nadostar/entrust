@@ -36,6 +36,7 @@
                 <td><?php echo MasterData::getStatus($row['status']); ?></td>
                 <td><?php es($row['updated_at']);?></td>
                 <td>
+                
                 </td>
             </tr>
             <?php endforeach; ?>

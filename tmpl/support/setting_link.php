@@ -25,6 +25,7 @@
 <div class="wrapper wrapper-content">
     <div id="result" class="row"></div>
     <div id="viewer" class="row"></div>
+    <div id="usefullinks-viewer" class="row"></div>
 </div>
 
 <form id="search-form">
@@ -44,7 +45,8 @@ var urls = {
     'search': "<?php url('support/setting_link/?m=search', true, false); ?>",
     'viewer': "<?php url('support/setting_link/?m=viewer', true, false); ?>",
     'saveChanges': "<?php url('support/setting_link/?m=saveChanges', true, false); ?>",
-    'accesskey': "<?php url('support/setting_link/?m=accesskey', true, false); ?>",
+    'partner': "<?php url('support/setting_partner/?pid=', true, false); ?>",
+    'usefulLinks': "<?php url('support/setting_link/?m=usefulLinks', true, false); ?>",
 };
 
 var global = new Entrust(urls);
@@ -143,72 +145,52 @@ $(function(){
 
             return false;
         })
-        .on('click', 'a.discard-form', function(){
-            $('#viewer').empty();
-            return false;
-        })
-        .on('click', 'button.accesskey', function(){
+        .on('click', "button.partner", function(){
             var $button = $(this);
             var id = $button.data('id');
 
             if(!id) {
-                toastr.error("Missing ID.");
+                toastr.error("Missing ID");
                 return;
             }
+            var url = urls['partner'] + id;
 
-            var params = {
+            console.log(url);
+
+            location.href = url;
+
+            return false;
+        })
+        .on('click', "button.usefullinks", function(){
+            var $button = $(this);
+            var id = $button.data('id');
+
+            params = {
                 'id': id
             };
 
-            console.log(urls['accesskey'], params);
-            
-            swal({
-              title: "Are you sure?",
-              text: "Generate accesskey.",
-              type: "info",
-              showCancelButton: true,
-              closeOnConfirm: false,
-              showLoaderOnConfirm: true,
-            },
-            function(){
-                $.post(urls['accesskey'], params).done(function(response){
-                    console.log(response);
+            console.log(urls['usefulLinks'], params);
 
-                    var result = JSON.parse(response);
+            $('#usefullinks-viewer').load(urls['usefulLinks'], params, function(response, status, err){
+                console.log('loaded', status);
 
-                    if(result.status) {
-                        toastr.success(result.message);
-                        swal("Success!", result.message, "success");
-
-                        $button.attr("disabled", true);
-                        $('button.download').attr("disabled", false);
-                    } else {
-                        toastr.error(result.message);
-                        swal("Fail!", result.message, "error");
-                    }
-                }).error(function(response, status, err){
-                    console.log(response, status, err);
-                    toastr.error(response.responseText, err);
-                    swal(err, result.message, "error");
-                });
+                if(status == 'error') {
+                    toastr.error(response, status);
+                }
             });
 
             return false;
         })
-        .on('click', 'button.download', function(){
-            var $button = $(this);
-            var id = $button.data('id');
-
-            if(!id) {
-                toastr.error("Missing ID.");
-                return;
-            }
-
-            console.log(urls['download'], id);
-
-            document.getElementById('download_id').value = id;
-            document.download_form.submit();
-
+        .on('click', "button.useful-page-prev", function(){
+            global.pager2($(this), urls['usefulLinks'], "usefullinks-viewer");
+            return false;
+        })
+        .on('click', "button.useful-page-next", function(){
+            global.pager2($(this), urls['usefulLinks'], "usefullinks-viewer");
+            return false;
+        })
+        .on('click', 'a.discard-form', function(){
+            $('#viewer').empty();
             return false;
         })
         .on('click', "button.page-prev", function(){

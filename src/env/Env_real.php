@@ -24,6 +24,8 @@ class Env {
     /** 인증여부 */
     const IS_LOGIN_CHECK = true;
     
+    const ACCESSKEY_SIZE = 16;
+
     const PAGE_LIST = 7;
 	
     private static $database_config = array(

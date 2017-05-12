@@ -17,12 +17,16 @@
                 <th>Name</th>
                 <th>Country</th>
                 <th>Sales</th>
-                <th>Sample</th>
                 <th>CPI($)</th>
-                <th>IR</th>
+                <th>Sample</th>
+                <th>C</th>
+                <th>S</th>
+                <th>Q</th>
+                <th>IR_A</th>
+                <th>IR_Q</th>
                 <th>Status</th>
                 <th>Date</th>
-                <th>Settings</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -33,20 +37,27 @@
                 <td><?php es($row['name']); ?></td>
                 <td><?php echo MasterData::getCountry($row['country']); ?></td>
                 <td><?php es($row['sales']);?></td>
-                <td><?php es($row['sample']);?></td>
                 <td><?php es($row['cpi']);?></td>
+                <td><?php es($row['sample']);?></td>
+                <td><?php es($row['c']);?></td>
+                <td><?php es($row['s']);?></td>
+                <td><?php es($row['q']);?></td>
                 <td><?php es($row['ir']);?>%</td>
-                <td><?php echo MasterData::getProjectStatus($row['disable']); ?></td>
+                <td><?php es($row['ir_q']);?>%</td>
+                <td><?php echo MasterData::getProjectStatus($row['status']); ?></td>
                 <td><?php es($row['updated_at']);?></td>
                 <td>
                     <button type="button" class="setting-link btn btn-success btn-xs" data-id="<?php es($row['id']); ?>"><i class="fa fa-link"></i> Link</button>
                     <button type="button" class="setting-partner btn btn-info btn-xs" data-id="<?php es($row['id']); ?>"><i class="fa fa-share-alt"></i> Partner</button>
+                    <?php if($row['status'] > 0): ?>
+                    <button type="button" class="setting-control btn btn-plain btn-xs" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getProjectStatusControl($row['status']); ?></button>
+                    <?php endif; ?>
                 </td>
             </tr>
             <?php endforeach; ?>
             <?php else: ?>
             <tr>
-                <td colspan="10" class="text-center">No found data.</td>
+                <td colspan="14" class="text-center">No found data.</td>
             </tr>
             <?php endif; ?>
             </tbody>

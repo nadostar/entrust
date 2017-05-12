@@ -5,7 +5,7 @@
 */
 class Logic_Block extends _Logic_App {
 	public static function findBlockDataByIp(_DatabaseAccess $dao, $pid, $ip) {
-		$sql = "select count(1) as found from block where pid = ? and ip_address = ?";
+		$sql = "SELECT COUNT(1) AS `found` FROM `block` WHERE `pid` = ? AND `ip_address` = ?";
 
 		$param = array($pid, $ip);
 

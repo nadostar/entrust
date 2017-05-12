@@ -1,6 +1,6 @@
 <div class="footer">
 <div class="pull-right">
-    {{user.name}}@{{config.name}}
+    <?php es('admin');?>@<?php es('Dev');?>
 </div>
 <div>
     <strong>Copyright</strong> EntrustSurvey &copy; 2017

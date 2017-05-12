@@ -5,12 +5,24 @@
 */
 class Logic_Project extends _Logic_App {
 	
-	public static function getProjectDataLimited(_DatabaseAccess $dao, $search, $limit, $offset) {
+	public static function getProjectDataLimited(_DatabaseAccess $dao, $pid, $status, $sales, $limit, $offset) {
 		$ret = array();
 
-		$sql = "select * from `project` where 1 = 1";
+		$sql = "SELECT * FROM `project` WHERE 1 = 1";
+		
+		if(!empty($pid)) {
+			$sql .= sprintf(" AND `id` = '%s'", $pid);
+		}
 
-		$sql.= " limit ? offset ?";
+		if(strlen($status) > 0) {
+			$sql .= sprintf(" AND `status` = %d", $status);
+		}
+
+		if(!empty($sales)) {
+			$sql .= sprintf(" AND `sales` = '%s'", $sales);
+		}
+
+		$sql.= " ORDER BY `id` DESC LIMIT ? OFFSET ?";
 
 		$param = array($limit, $offset);
 		
@@ -21,13 +33,13 @@ class Logic_Project extends _Logic_App {
 	}
 
 	public static function getProjectDataMap(_DatabaseAccess $dao) {
-		$sql = "select `id`, `name` from project where `disable` < 2";
+		$sql = "SELECT `id`, `name` from project WHERE `status` < 2";
 		
 		return $dao->selectArray($sql);
 	}
 
 	public static function getProjectDataById(_DatabaseAccess $dao, $id) {
-		$sql = "select * from `project` where id = ?";
+		$sql = "SELECT * FROM `project` WHERE id = ?";
 		$param = array($id);
 
 		return $dao->selectOne($sql, $param);
@@ -61,7 +73,7 @@ class Logic_Project extends _Logic_App {
 	public static function changeProjectStatus(_DatabaseAccess $dao, $id, $status) {
 		try {
 			$param = array(
-				'disable' => $status
+				'status' => $status
 			);
 
 			$condition = "id = ?";

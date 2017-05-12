@@ -93,9 +93,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Request limit *</label>
+                    <label class="col-sm-2 control-label">Hits limit *</label>
                     <div class="col-sm-2">
-                        <input type="text" name="request_limit" class="form-control" value="<?php es($partner['request_limit']);?>" placeholder="0">
+                        <input type="text" name="hits_limit" class="form-control" value="<?php es($partner['hits_limit']);?>" placeholder="0">
                     </div>
                 </div>
                 <div class="ibox-content text-right">

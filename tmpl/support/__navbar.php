@@ -100,3 +100,28 @@
     </ul>
 </nav>
 </div>
+
+    <div id="password-dialog" class="modal fade" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Admin Password</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <form role="form">
+                                <div class="form-group"><label>Current Password</label> <input type="password" name="password1" class="form-control"></div>
+                                <div class="form-group"><label>New Password</label> <input type="password" name="password2" class="form-control"></div>
+                                <div class="form-group"><label>Confirm Password</label> <input type="password" name="password2" class="form-control"></div>
+                                <div>
+                                    <button class="btn btn-lg btn-rounded btn-primary btn-block" type="submit"><strong>SaveChanges</strong></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

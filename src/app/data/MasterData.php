@@ -24,6 +24,15 @@ class MasterData {
 		return self::$survey_type_snapshot_map[$val];
 	}
 
+	private static $link_type_map = array(
+		0 => 'S',
+		1 => 'M'
+	);
+
+	public static function getLinkType($val) {
+		return self::$link_type_map[$val];
+	}
+
 	private static $country_map = array(
 		'01' => 'Arab',
 		'02' => 'Argentina',
@@ -68,6 +77,29 @@ class MasterData {
 		return self::$project_status_map[$val];
 	}
 
+	private static $project_search_status_map = array(
+		0 => 'Pending',
+		1 => 'Active',
+		2 => 'Closed'
+	);
+
+	public static function getProjectSearchStatusMap() {
+		return self::$project_search_status_map;
+	}
+
+	public static function getProjectSearchStatus($val) {
+		return self::$project_search_status_map[$val];
+	}
+
+	private static $project_status_control_map = array(
+		1 => '<i class="fa fa-toggle-off"></i> Closed',
+		2 => '<i class="fa fa-toggle-on"></i> Active'
+	);
+
+	public static function getProjectStatusControl($val) {
+		return self::$project_status_control_map[$val];
+	}
+
 	private static $status_map = array(
 		0 => '<span class="label label-primary">Active</span>',
 		1 => '<span class="label label-danger">Closed</span>'
@@ -78,18 +110,27 @@ class MasterData {
 	}
 
 	private static $progress_map = array(
-		0 => '<span class="label label-plain">Survey</span>',
+		0 => '<span class="label label-plain">Join In</span>',
 		1 => '<span class="label label-success">Complate</span>',
 		2 => '<span class="label label-danger">Screenout</span>',
 		3 => '<span class="label label-warning">Quotafull</span>',
 	);
+
+	private static $partner_status_control_map = array(
+		0 => '<i class="fa fa-toggle-off"></i> Closed',
+		1 => '<i class="fa fa-toggle-on"></i> Active',
+	);
+
+	public static function getPartnerStatusControl($val) {
+		return self::$partner_status_control_map[$val];
+	}
 
 	public static function getProgress($val) {
 		return self::$progress_map[$val];
 	}
 
 	private static $accesslog_category_map = array(
-		0 => 'Survey',
+		0 => 'Join In',
 		1 => 'Complate',
 		2 => 'Screenout',
 		3 => 'Quotafull',

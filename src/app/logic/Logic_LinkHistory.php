@@ -6,8 +6,26 @@
 class Logic_LinkHistory extends _Logic_App {
 
 	public static function getLinkHistoryById(_DatabaseAccess $dao, $accesskey, $uid) {
-		$sql = "SELECT `id`, `progress` FROM `link_history` WHERE `accesskey` = ? AND `uid` = ?";
+		$sql = "SELECT `id`, `progress`, `url` FROM `link_history` WHERE `accesskey` = ? AND `uid` = ?";
 		$param = array($accesskey, $uid);
+
+		return $dao->selectOne($sql, $param);
+	}
+
+	public static function findLinkHistory(_DatabaseAccess $dao, $accesskey, $uid) {
+		$sql = "SELECT `id`, `url`, `progress` 
+				FROM `link_history` 
+				WHERE `accesskey` = ? AND `uid` = ?";
+
+		$param = array($accesskey, $uid);
+
+		return $dao->selectOne($sql, $param);
+	}
+
+	public static function getLinkHisoryTotal(_DatabaseAccess $dao, $accesskey) {
+		$sql = "SELECT count(`id`) AS 'found' FROM `link_history` WHERE `accesskey` = ?";
+
+		$param = array($accesskey);
 
 		return $dao->selectOne($sql, $param);
 	}
@@ -18,7 +36,7 @@ class Logic_LinkHistory extends _Logic_App {
 
 		return $dao->selectOne($sql, $param);
 	}
-
+	
 	public static function insertLinkHistoryData(_DatabaseAccess $dao, $data) {
 		try {
 			$dao->startTransaction();
@@ -35,7 +53,7 @@ class Logic_LinkHistory extends _Logic_App {
 		return true;
 	}
 
-	public static function updateLinkHistoryByProgress(_DatabaseAccess $dao, $id, $progress) {
+	public static function changeProgressById(_DatabaseAccess $dao, $id, $progress) {
 		try {
 			$dao->startTransaction();
 

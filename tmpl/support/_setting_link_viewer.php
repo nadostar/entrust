@@ -59,7 +59,7 @@
                     </div>
                 </div>
 
-                <div class="multi form-group" style="<?php if($link['type'] == 0) es("display: none;");?>">>
+                <div class="multi form-group" style="<?php if($link['type'] == 0) es("display: none;");?>">
                     <label class="col-sm-2 control-label">File *</label>
                     <div class="col-sm-9">
 						<input type="file" name="attachment">

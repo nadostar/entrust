@@ -22,29 +22,43 @@
 </div>
 
 <div class="wrapper wrapper-content animated fadeInUp">
-    <div class="row">
-        <div class="col-lg-12">
-           <div class="ibox">
-                <div class="ibox-content">
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <button class="new-form btn btn-primary"><i class="fa fa-edit"></i> New Porject</button>
-                        </div>
-                        <form id="search-form">
-                        <div class="col-lg-9">
-                            <div class="input-group">
-                                <input type="text" name="search" placeholder="search" class="form-control"> 
-                                <span class="input-group-btn">
-                                    <button type="button" class="submit btn btn-primary" onclick="global.search();"> Search</button>
-                                </span>
-                            </div>
-                        </div>
-                        </form>
-                    </div>
+    <form id="search-form">
+    <div class="ibox-content m-b-sm border-bottom">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label" for="pid">Project No</label>
+                    <input type="text" name="pid" value="" placeholder="ex) P100000X" class="form-control">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label" for="status">Status</label>
+                    <select name="status" class="input-large form-control" >
+                        <option value="">===========</option>
+                        <?php foreach (MasterData::getProjectSearchStatusMap() as $k => $v): ?>
+                        <option value="<?php echo $k; ?>"><?php echo $v; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label" for="sales">Sales</label>
+                    <input type="text" name="sales" value="" placeholder="ex) Eva" class="form-control">
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <button class="new-form btn btn-primary"><i class="fa fa-edit"></i> New Porject</button>
+            </div>
+            <div class="col-lg-9">
+                <button type="button" class="search-form btn btn-primary pull-right" onclick="global.search();"><i class="fa fa-search"></i> Search </button>
+            </div>
+        </div>
     </div>
+    </form>
 
     <div id="result" class="row"></div>
     <div id="viewer" class="row"></div>
@@ -59,6 +73,7 @@ var urls = {
     'search': "<?php url('support/project/?m=search', true, false); ?>",
     'viewer': "<?php url('support/project/?m=viewer', true, false); ?>",
     'saveChanges': "<?php url('support/project/?m=saveChanges', true, false); ?>",
+    'control': "<?php url('support/project/?m=control', true, false); ?>",
     'link': "<?php url('support/setting_link/?pid=', true, false); ?>",
     'partner': "<?php url('support/setting_partner/?pid=', true, false); ?>",
 };
@@ -121,6 +136,56 @@ $(function(){
             },
             function(){
                 $.post(urls['saveChanges'], params).done(function(response){
+                    console.log(response);
+
+                    var result = JSON.parse(response);
+
+                    if(result.status){
+                        toastr.success(result.message);
+                        swal("Success!", result.message, "success");
+                        
+                        setTimeout(function(){
+                            $('#viewer').empty();
+                            global.search();
+                        }, 1000);
+
+                    } else {
+                        toastr.error(result.message);
+                        swal("Fail!", result.message, "error");
+                    }
+                }).fail(function(response, status, err){
+                    toastr.error(response.responseText, err);
+                    swal(err, response.responseText, "error");
+                });
+            });
+
+            return false;
+        })
+        .on('click', "button.setting-control", function(){
+            var $button = $(this);
+            var id = $button.data('id');
+            var status = $button.data('status');
+
+            if(!id) {
+                toastr.error("Missing ID");
+                return;
+            }
+
+            var params = {
+                'id': id,
+                'status': status
+            };
+            
+            swal({
+              title: "Are you sure?",
+              text: "Would you like to save change this data.",
+              type: "info",
+              showCancelButton: true,
+              closeOnConfirm: false,
+              showLoaderOnConfirm: true,
+            },
+            function(){
+                $.post(urls['control'], params).done(function(response){
                     console.log(response);
 
                     var result = JSON.parse(response);

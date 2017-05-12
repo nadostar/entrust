@@ -6,21 +6,11 @@ require_once __DIR__.'/../_Action_Api.php';
 * 
 */
 class Action_Receive extends _Action_Api {
-	# error
-	# Invalid accesskey 	66560
-	# Invalid status 		66561
-	# Invalid uniqueID 		66562
 
-	# not to join in the survey. 74728
-
-	# Failed to receive (accesskey)	74729
-	# Failed to receive (kind)		74730
-	# Failed to receive (uniqueID)	74731
-
-	private $receive_progress = array(
-		"c" => 1,
-		"s" => 2,
-		"q" => 3,
+	private $receive_progress_map = array(
+		'c' => 1,
+		's' => 2,
+		'q' => 3
 	);
 
 	protected function initialize() {
@@ -33,7 +23,7 @@ class Action_Receive extends _Action_Api {
 		try {
 			$this->registValidatorMap('r');
 			$this->registValidatorMap('k');
-			$this->registValidatorMap('uid');
+			$this->registValidatorMap('esid');
 
 			$this->validParam();
 		} catch (Exception $e) {
@@ -43,170 +33,183 @@ class Action_Receive extends _Action_Api {
 	}
 
 	protected function doAction() {
-		$accesskey 	= $this->getQuery('r');
-		$kind 		= $this->getQuery('k');
-		$user_id 	= $this->getQuery('uid');
+		$accesskey 	= trim($this->getQuery('r'));
+		$status 	= trim($this->getQuery('k'));
+		$esid 		= trim($this->getQuery('esid'));
 
 		$params = array(
-			"r" => $this->getQuery("r"),
-			"k" => $this->getQuery("k"),
-			"uid" => $this->getQuery("uid"),
-			"ip" => $this->ip_address
+			'accesskey' => $accesskey,
+			'status' 	=> $status,
+			'esid' 		=> $esid,
+			'ip' 		=> $this->ip_address
 		);
 
-		$this->parametersValidate($params);
+		$this->validateParameters($params);
 
-		$accesskey = $this->accesskeyValidate($params);
+		$history = $this->findHistory($params);
 
-		$this->projectValidate($accesskey, $params);
+		$snapshot = $this->findAccesskey($params);
 
-		$this->linkProc($params, $accesskey);
+		$this->validateProject($snapshot, $params);
 
-		$this->sendJsonResult($params);
+		$this->jumpToPartnerRedirectLink($snapshot, $history, $params);
 	}
 
-	private function parametersValidate($params) {
-		$accesskey 	= trim($params['r']);
-		$kind 		= trim($params['k']);
-		$uid 		= trim($params['uid']);
-
-		$error = array();
-
-		# Invalid accesskey 	66560
-		if(empty($accesskey)) {
-			$error["code"] = "66560";
-			$error["message"] = "Invalid accesskey.";
-
-			$this->sendJsonResult($error);
-
-			exit();
+	protected function validateParameters($params) {
+		if(empty($params['accesskey'])) {
+			LogManager::debug("[ERROR] code=55560, params=".json_encode($params));
+			//$this->errorlog("NONE", "Receive", "55560", "Invalid accesskey", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
-		# Invalid accesskey 	66560
-		if(strlen($accesskey) != 11) {
-			$error["code"] = "66560";
-			$error["message"] = "Invalid accesskey.";
-			$this->sendJsonResult($error);
-			exit();
+		if(strlen($params['accesskey']) != Env::ACCESSKEY_SIZE) {
+			LogManager::debug("[ERROR] code=55561, params=".json_encode($params));
+			//$this->errorlog("NONE", "Receive", "55561", "Invalid accesskey size", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
-		# Invalid status 		66561
-		if(empty($kind)) {
-			$error["code"] = "66561";
-			$error["message"] = "Invalid kind.";
-			$this->sendJsonResult($error);
-			exit();
+		if(empty($params['esid'])) {
+			LogManager::debug("[ERROR] code=55562, params=".json_encode($params));
+			//$this->errorlog("NONE", "Receive", "55562", "Invalid esid", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/error/');
+		}
+
+		if(empty($params['status'])) {
+			LogManager::debug("[ERROR] code=55563, params=".json_encode($params));
+			//$this->errorlog("NONE", "Receive", "55563", "Invalid status", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		try {
-			$this->receive_progress[$kind];
+			$this->receive_progress_map[$params['status']];
 		} catch (Exception $e) {
-			$error["code"] = "66561";
-			$error["message"] = "Invalid kind key";
-			$this->sendJsonResult($error);
-			exit();
-		}
-
-		# Invalid uniqueID 		66562
-		if(empty($uid)) {
-			$error["code"] = "66562";
-			$error["message"] = "Invalid uniqueID.";
-			$this->sendJsonResult($error);
-			exit();
-		}
-
-		$history = Logic_LinkHistory::getLinkHistoryById($this->slave_db, $accesskey, $uid);
-
-		# not to join in the survey. 74728
-		if($history === false) {
-			$error["code"] = "74728";
-			$error["message"] = "User (".$uid. ") not to join in the survey.";
-
-			$errordata = array(
-				"pid" => "None",
-				"kind" => "Receive",
-				"code" => "74728",
-				"message" => "User (".$uid. ") not to join in the survey.",
-				"data" => json_encode($params)
-			);
-
-			$this->errorlog($errordata);
-
-			$this->sendJsonResult($error);
-			exit();
+			//$this->errorlog("NONE", "Receive", "55564", "Invalid status value", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 	}
 
-	private function accesskeyValidate($params) {
-		$accesskey = trim($params["r"]);
-		$data = Logic_AccessKeys::getAccessKeyDataByKey($this->slave_db, $accesskey);
+	protected function findAccesskey($params) {
+		$data = Logic_Snapshot::getSnapshotDataByAccesskey($this->slave_db, $params['accesskey']);
 
-		$error = array();
-		# Failed to access key  73729
 		if($data === false) {
-			$error["code"] = "73729";
-			$error["message"] = "Failed to receive (accesskey).";
-	
-			$errordata = array(
-				"pid" => "None",
-				"kind" => "Receive",
-				"code" => "74729",
-				"message" => "Failed to receive (accesskey).",
-				"data" => json_encode($params)
-			);
-
-			$this->errorlog($errordata);
-
-			$this->sendJsonResult($error);
-			exit();
+			LogManager::debug("[ERROR] code=83729, params=".json_encode($params));
+			//$this->errorlog("NONE", "Receive", "73729", "Accesskey is not found", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		return $data;
 	}
 
-	private function projectValidate($accesskey, $params) {
-		$data = Logic_Project::getProjectDataById($this->slave_db, $accesskey['pid']);
+	protected function findHistory($params) {
+		$history = Logic_LinkHistory::findLinkHistory($this->slave_db, $params['accesskey'], $params['esid']);
 
-		$error = array();
-		if($data === false) {
-			$error["code"] = "73730";
-			$error["message"] = "Not supported survey";
-			$this->sendJsonResult($error);
-			exit();
+		if($history === false) {
+			LogManager::debug("[ERROR] code=84728, params=".json_encode($params));
+			//$this->errorlog("NONE", "Receive", "84728", "Invalid status value", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 
-		if($data["disable"] != 1) {
-			$error["code"] = "73730";
-			$error["message"] = "Not supported survey";
-			$this->sendJsonResult($error);
-			exit();
+		return $history;
+	}
+
+	protected function validateProject($snapshot, $params) {
+		$data = Logic_Project::getProjectDataById($this->slave_db, $snapshot['pid']);
+
+		if($data === false) {
+			LogManager::debug("[ERROR] code=83730, params=".json_encode($params));
+			//$this->errorlog($snapshot['pid'], 'Receive', "83730", "Project is not found", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
+
+		// verify status of project (0: Pending, 1: Active, 2: Closed)
+		if($data['status'] != 1) {
+			LogManager::debug("[ERROR] code=83731, params=".json_encode($params));
+			//$this->errorlog($snapshot['pid'], 'Receive', "83731", "Project unactive ", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 	}
 
-	private function linkProc($params, $accesskey) {
-		$key = trim($params['r']);
-		$kind = trim($params['k']);
-		$uid = trim($params['uid']);
+	protected function jumpToPartnerRedirectLink($snapshot, $history, $params) {
 
-		$history = Logic_LinkHistory::getLinkHistoryById($this->slave_db, $key, $uid);
+		LogManager::debug($history);
 
-		if($history !== false) {
-			if($history['progress'] == 0) {
-				if(Logic_LinkHistory::updateLinkHistoryByProgress($this->master_db, $history['id'], $this->receive_progress[$kind])) {
-					Logic_Stat::recordStatData($this->master_db, $kind, $accesskey);
-					Logic_Log::accesslog($this->log_db, $key, $this->receive_progress[$kind], $params, $this->ip_address);
-				}
+
+		$partner = Logic_Partner::getPartnerDataById($this->slave_db, $snapshot['partner_id']);
+
+		if($partner === false) {
+			LogManager::debug("[ERROR] code=83733, params=".json_encode($params));
+			//$this->errorlog($snapshot['pid'], 'Receive', "83733", "Partner is not found", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
+
+		$url = "";
+		switch ($params['status']) {
+			case 'c':
+				$url = $this->generateURL($partner['complate_url'], array($params['esid']));
+				break;
+			case 's':
+				$url = $this->generateURL($partner['screenout_url'], array($params['esid']));
+				break;
+			case 'q':
+				$url = $this->generateURL($partner['quotafull_url'], array($params['esid']));
+				break;
+		}
+
+		if($history['progress'] == 0) {
+			if($partner['status'] == 1) {
+				LogManager::debug("[ERROR] code=83734, params=".json_encode($params));
+				//$this->errorlog($snapshot['pid'], 'Receive', "83734", "Partner unactive", json_encode($params));
+				$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+			}
+
+			if(Logic_LinkHistory::changeProgressById($this->master_db, $history['id'], $this->receive_progress_map[$params['status']])) {
+				Logic_Stat::recordStatData($this->master_db, $params['status'], $snapshot);
+				Logic_Log::accesslog($this->log_db, $snapshot['accesskey'], $this->receive_progress_map[$params['status']], $params, $this->ip_address);
 			}
 		}
+
+		// go redirect link of partner
+		/*
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		
+		$response = curl_exec($ch);
+		LogManager::debug($response);
+		//$ret = json_decode($response, true, 512, JSON_BIGINT_AS_STRING);
+			
+		$info = curl_getinfo($ch);
+		
+		curl_close($ch);
+		*/
+
+		LogManager::debug("partner redirect url is " . $url);
+		$this->jumpToPage($url);
 	}
 
-	private function errorlog($data) {
+	private function errorlog($project_id, $kind, $code, $message, $data) {
+		$data = array(
+			'pid' 		=> $project_id,
+			'kind' 		=> $kind,
+			'code' 		=> $code,
+			'message' 	=> $message,
+			'data' 		=> $data
+		);
+
 		Logic_Log::errorlog($this->log_db, $data);
 	}
 
-	private function jumpToPage($url, $message = '') {
+	private function jumpToPage($url) {
 		$this->redirect_url = $url;
 		$this->redirect();
 		exit();
+	}
+
+	private function generateURL($url, $param=array()){
+		$index=1;
+		foreach ($param as $str) {
+			$url = str_replace('{'.($index++).'}', $str, $url);
+		}
+		return $url;
 	}
 }

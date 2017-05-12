@@ -16,7 +16,6 @@ class Action_Project extends _Action_Support {
 		$this->registValidatorMap('m');
 	}
 
-
 	protected function preAction() {
 		parent::preAction();
 
@@ -43,6 +42,9 @@ class Action_Project extends _Action_Support {
 			$this->registValidatorMap('end_at', 	'Validator_Input', 			'End Date is required.');
 			$this->registValidatorMap('invoice');
 			$this->registValidatorMap('payment');
+			$this->registValidatorMap('status');
+
+			$this->registValidatorMap('pid');
 		}
 
 		try {
@@ -66,6 +68,9 @@ class Action_Project extends _Action_Support {
 			case 'viewer':
 				$this->viewer();
 				break;
+			case 'control':
+				$this->control();
+				break;
 			default:
 				$target = array(
 					'tree' => 'Survey',
@@ -80,22 +85,53 @@ class Action_Project extends _Action_Support {
 	}
 
 	private function search() {
-		$search = $this->getQuery('search');
-		$this->output->assign('search', $search);
+		$pid 	= $this->getQuery('pid');
+		$status = $this->getQuery('status');
+		$sales 	= $this->getQuery('sales');
 
 		$page = $this->getQuery('page');
 		empty($page) ? $page = 1 : '';
 
 		$pager = new SimplePager($page, Env::PAGE_LIST);
 
-		$data = Logic_Project::getProjectDataLimited($this->slave_db, $search, $pager->limit(), $pager->offset());
+		$data = Logic_Project::getProjectDataLimited($this->slave_db, $pid, $status, $sales, $pager->limit(), $pager->offset());
+
+		if($data['list']) {
+			foreach ($data['list'] as $idx => $row) {
+				$data['list'][$idx]['join_in_size'] = 0;
+
+				$statdata = Logic_Stat::getStatDataByPid($this->slave_db, $row['id']);
+				
+				if(!empty($statdata['pid'])) {
+					$data['list'][$idx]['c'] = $statdata['c'];
+					$data['list'][$idx]['s'] = $statdata['s'];
+					$data['list'][$idx]['q'] = $statdata['q'];
+					
+					$ir_q = 0;
+					try {
+						$ir_q = intval($statdata['c']) / (intval($statdata['c']) + intval($statdata['s'])) * 100;
+					} catch (Exception $e) {
+						$ir_q = 0;
+					}
+
+					$data['list'][$idx]['ir_q'] = $ir_q;
+				} else {
+					$data['list'][$idx]['c'] = 0;
+					$data['list'][$idx]['s'] = 0;
+					$data['list'][$idx]['q'] = 0;
+					$data['list'][$idx]['ir_q'] = 0;
+				}
+			}
+		}
 
 		$this->output->assign('data', $data['list']);
 
 		$pager->setPager($data['count'], self::PAGER_ARM_LENGTH);
 		
 		$params = array(
-			'search' => trim($search)
+			'pid' => trim($pid),
+			'status' => trim($status),
+			'sales' => trim($sales),
 		);
 
 		LogManager::debug($pager->output($params));
@@ -185,5 +221,27 @@ class Action_Project extends _Action_Support {
 		$this->output->assign('project', $project);
 
 		$this->output->setTmpl('support/_project_viewer.php');
+	}
+
+	private function control() {
+		$id = $this->getQuery('id');
+		
+		switch ($this->getQuery('status')) {
+			case '1':
+				$status = 2;
+				break;
+			case '2':
+				$status = 1;
+				break;
+		}
+
+		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
+
+		if(!Logic_Project::changeProjectStatus($this->master_db, $id, $status)) {
+			$result_map['status'] = false;
+			$result_map['message'] = 'transaction fail!';
+		}
+
+		$this->sendJsonResult($result_map);
 	}
 }

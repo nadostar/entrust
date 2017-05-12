@@ -55,11 +55,8 @@ class Action_SettingLink extends _Action_Support {
 			case 'viewer':
 				$this->viewer();
 				break;
-			case 'accesskey':
-				$this->accesskey();
-				break;
-			case 'download':
-				$this->download();
+			case 'usefulLinks':
+				$this->usefulLinks();
 				break;
 			default:
 				$target = array(
@@ -116,36 +113,9 @@ class Action_SettingLink extends _Action_Support {
 		);
 
 		if($params['type'] == 0) {
-			$params['k'] = 0;
-			$params['url'] = trim($this->getQuery('url'));
-
-			if(empty($params['url'])) {
-				$result_map['status'] = false;
-				$result_map['message'] = "URL is required.";
-				$this->sendJsonResult($result_map);
-				exit();
-			}
+			$params['id'] = Logic_Generate::generateId($this->slave_db, 'link');
 		} else {
-			
-			if(empty($_FILES['attachment']['name'])) {
-				$result_map['status'] = false;
-				$result_map['message'] = "File is required.";
-				$this->sendJsonResult($result_map);
-				exit();
-			}
-
-			$file_name = $_FILES['attachment']['name'];
-			$tmp_file_name = $_FILES['attachment']['tmp_name'];
-			$info = pathinfo($file_name);
-			$ext = strtolower($info['extension']);
-			
-			$rf = fopen($tmp_file_name, "r");
-			$frd = fread($rf, filesize($tmp_file_name));
-			$url_array = explode("\n", $frd);
-						
-			fclose($rf);
-			
-			$params['urls'] = $url_array;
+			$params['id'] = Logic_Generate::generateId($this->slave_db, 'link', 'M');
 		}
 
 		if(strlen($this->error_msg) > 0) {
@@ -155,27 +125,53 @@ class Action_SettingLink extends _Action_Support {
 			$result = false;
 
 			if(empty($id)) {
-				$category = Category::LINK_NEW;
-
-				if($params['type'] == 0) {
-					$params['id'] = Logic_Generate::generateId($this->slave_db, 'link');
-				} else {
-					$params['id'] = Logic_Generate::generateId($this->slave_db, 'link', 'M');
-				}
-				
 				$result = Logic_Link::insertLinkData($this->master_db, $params);
 			} else {
-				$category = Category::LINK_CHANGE;
-
+				unset($params['id']); // remove id
+				$result = Logic_Link::updateLinkData($this->master_db, $id, $params);
 				$params['id'] = $id;
-				$result = Logic_Link::updateLinkData($this->master_db, $params);
 			}
 
-			if($result) {
-				Logic_Log::adminlog($this->log_db, $this->login_session->getAdminId(), $category, $params, $this->ip_address);
+			$useful_link_data = array(
+				'link_id' => $params['id'],
+				'link_no' => 0,
+			);
+
+			if($params['type'] == 0) {
+				$useful_link_data['url'] = array(trim($this->getQuery('url')));
 			} else {
-				$result_map['status'] = false;
-				$result_map['message'] = 'transaction fail!';
+				$file_name = $_FILES['attachment']['name'];
+				$tmp_file_name = $_FILES['attachment']['tmp_name'];
+				$info = pathinfo($file_name);
+				$ext = strtolower($info['extension']);
+				
+				$rf = fopen($tmp_file_name, "r");
+				$frd = fread($rf, filesize($tmp_file_name));
+				$url_array = explode("\n", $frd);
+							
+				fclose($rf);
+				
+				$useful_link_data['url'] = $url_array;
+			}
+
+			$max_link_no = Logic_Link::getMaxLinkNo($this->slave_db, $params['id']);
+						
+			if(!empty($max_link_no['no'])) {
+				$useful_link_data['link_no'] = $max_link_no['no'];
+			}
+			
+			if($params['type'] == 0) {
+				if(!empty($id)) {
+					Logic_Link::updateSingleUsefulLinkData($this->master_db, $useful_link_data['link_id'], 1, $useful_link_data['url'][0]);
+				} else {
+					Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data);
+				}
+			} else {
+				if(Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data)) {
+					LogManager::debug("ok");
+				} else {
+					LogManager::debug("no");
+				}
 			}
 		}
 
@@ -196,6 +192,12 @@ class Action_SettingLink extends _Action_Support {
 
 		if(!empty($id)) {
 			$link = Logic_Link::getLinkDataById($this->slave_db, $id);
+
+
+			if($link['type'] == 0) {
+				$usefuldata = Logic_Link::getSingleLinkData($this->slave_db, $id);
+				$link['url'] = $usefuldata['url'];
+			}
 		}
 
 		$project_data = Logic_Project::getProjectDataMap($this->slave_db);
@@ -206,67 +208,25 @@ class Action_SettingLink extends _Action_Support {
 		$this->output->setTmpl('support/_setting_link_viewer.php');
 	}
 
-	private function accesskey() {
+	private function usefulLinks() {
 		$id = $this->getQuery('id');
-		$pid = null;
-		$link_id = null;
 
-		$data = Logic_Link::getLinkDataArrayById($this->slave_db, $id);
+		$page = $this->getQuery('page');
+		empty($page) ? $page = 1 : '';
 
-		$params = array();
-		foreach ($data as $row) {
-			$accesskey = Util_GenerateId::generateId(11);
-			$params[] = array(
-				'access_key' => $accesskey,
-				'pid' => $row['pid'],
-				'link_id' => $row['id'],
-				'link_key' => $row['k']
-			);
+		$pager = new SimplePager($page, Env::PAGE_LIST);
 
-			$pid = $row['pid'];
-			$link_id = $row['id'];
-		}
+		$data = Logic_Link::getMultiLinkDataLimited($this->slave_db, $id, $pager->limit(), $pager->offset());
 
-		$result_map = array('status' => true, 'message' => 'Generate accesskey success!');
+		$this->output->assign('data', $data['list']);
+		$pager->setPager($data['count'], self::PAGER_ARM_LENGTH);
 
-		if(Logic_AccessKeys::insertAccessKeysData($this->master_db, $params)) {
-			Logic_Project::changeProjectStatus($this->master_db, $pid, 1);
+		$params = array(
+			'id' => $id
+		);
 
-			$statdata = array(
-				'pid' => $pid,
-				'link_id' => $link_id
-			);
+		$this->output->assign('pager', $pager->output($params));
 
-			Logic_Stat::insertStatData($this->master_db, $statdata);
-			
-			Logic_Log::adminlog($this->log_db, $this->login_session->getAdminId(), Category::ACCESSKEY_GENERATE, $params, $this->ip_address);
-		} else {
-			$result_map['status'] = false;
-			$result_map['message'] = 'transaction fail!';		
-		}
-		
-		$this->sendJsonResult($result_map);
-	}
-
-	private function download() {
-		$this->output = new Output_CSV();
-		set_time_limit(0);
-
-		$id = $this->getQuery('download_id');
-
-		$date = date('ymdHis');
-		$file = str_replace('{date}', $date, $this->export_file);
-		$this->output->setExportFileName($file);
-		$this->output->realtimeOutput();
-
-		$data = Logic_AccessKeys::getAccessKeyDataByLinkId($this->slave_db, $id);
-		
-		$url = Env::SURVEY_URL;
-
-		foreach ($data as $row) {
-			$tmp['url'] = str_replace('{accesskey}', $row['access_key'], $url);
-			LogManager::debug($tmp['url']);
-			$this->output->assignRow($tmp['url']);
-		}
+		$this->output->setTmpl('support/_setting_link_usefullink_viewer.php');
 	}
 }

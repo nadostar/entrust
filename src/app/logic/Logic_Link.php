@@ -8,15 +8,13 @@ class Logic_Link extends _Logic_App {
 	public static function getLinkDataLimited(_DatabaseAccess $dao, $pid, $limit, $offset) {
 		$ret = array();
 
-		$sql = "select `id`, `name`, `type`, `url`, `disable`, `updated_at`, `pid`, (select count(1) from `access_keys` where `link_id` = `id`) as accesskey from (
-					select `id`, `name`, `type`, `url`, `disable`, `created_at`, `updated_at`, `pid` from `link` where `type` = 0 and `pid` = ?
-					union
-					select `id`, `name`, `type`, '' as url, `disable`, `created_at`, `updated_at`, `pid` from `link` where `type` = 1 and `pid` = ?
-				) t ";
+		$sql = "SELECT `link`.`id`, `link`.`name`, `link`.`type`, `link`.`updated_at`, `project`.`name` AS `project_name`, `pid`
+				FROM `link` LEFT JOIN `project` ON `project`.`id` = `pid` 
+				WHERE `pid` = ?";
 
-		$sql.= " limit ? offset ?";
+		$sql.= " LIMIT ? OFFSET ?";
 
-		$param = array($pid, $pid, $limit, $offset);
+		$param = array($pid, $limit, $offset);
 		
 		$ret['list'] = $dao->selectArrayFoundRows($sql, $param);
 		$ret['count'] = $dao->getFoundRows();
@@ -24,57 +22,24 @@ class Logic_Link extends _Logic_App {
 		return $ret;
 	}
 
-	public static function getLinkDataByPid(_DatabaseAccess $dao, $pid) {
-		$sql = "select distinct `id`, `name` from link where `pid` = ?";
-		$param = array($pid);
+	public static function getLinkDataByProjectId(_DatabaseAccess $dao, $project_id) {
+		$sql = "SELECT DISTINCT `id`, `name` FROM `link` WHERE `pid` = ?";
+		$param = array($project_id);
 
 		return $dao->selectArray($sql, $param);
 	}
  
 	public static function getLinkDataById(_DatabaseAccess $dao, $id) {
-		$sql = "select * from `link` where id = ? limit 1";
+		$sql = "SELECT * FROM `link` WHERE `id` = ?";
 
 		$param = array($id);
-
-		return $dao->selectOne($sql, $param);
-	}
-
-	public static function getLinkDataArrayById(_DatabaseAccess $dao, $id) {
-		$sql = "select * from `link` where `id` = ?";
-		$param = array($id);
-		
-		return $dao->selectArray($sql, $param);
-	}
-
-	public static function getLinkDataByAccessKey(_DatabaseAccess $dao, $accesskey) {
-		$sql = "select `url`, `type`, `sample_size`, `request_limit`, `status` from `link` left join `partner` on link.id = partner.link_id where link.id = ? and k = ? and link.pid  = ?";
-
-		$param = array($accesskey['link_id'], $accesskey['link_key'], $accesskey['pid']);
 
 		return $dao->selectOne($sql, $param);
 	}
 
 	public static function insertLinkData(_DatabaseAccess $dao, $data) {
 		try {
-			if($data['type'] == 0) {
-				$dao->insert('link', $data);
-			} else {
-				$idx = 1000;
-				$param = array();
-				foreach ($data['urls'] as $url) {
-					$key = $idx++;
-					$param[] = array(
-						'id' => $data['id'],
-						'k' => $key,
-						'name' => $data['name'],
-						'type' => $data['type'],
-						'url' => $url,
-						'pid' => $data['pid']
-					);
-				}
-
-				$dao->insert_bulk('link', $param);
-			}			
+			$dao->insert('link', $data);
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
 			return false;
@@ -83,39 +48,110 @@ class Logic_Link extends _Logic_App {
 		return true;
 	}
 
-	public static function updateLinkData(_DatabaseAccess $dao, $data) {
+	public static function updateLinkData(_DatabaseAccess $dao, $id, $data) {
 		try {
-			if($data['type'] == 0) {
-				$condition = "id = ?";
-				$condition_param = array($data['id']);
+			$condition = "id = ?";
+			$condition_param = array($data['id']);
 
-				$dao->update('link', $data, $condition, $condition_param);
-			} else {
-				$condition = "id = ?";
-				$condition_param = array($data['id']);
-				$dao->delete('link', $condition, $condition_param);
-
-				$idx = 1000;
-				$param = array();
-				foreach ($data['urls'] as $url) {
-					$key = $idx++;
-					$param[] = array(
-						'id' => $id,
-						'k' => $key,
-						'name' => $data['name'],
-						'type' => $data['type'],
-						'url' => $url,
-						'pid' => $data['pid']
-					);
-				}
-
-				$dao->insert_bulk('link', $param);
-			}
+			$dao->update('link', $data, $condition, $condition_param);
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
 			return false;
 		}
 
 		return true;
+	}
+
+	public static function insertUsefulLinkData(_DatabaseAccess $dao, $data) {
+		try {
+
+			$idx = $data['link_no'];
+			foreach ($data['url'] as $url) {
+				$param[] = array(
+					'link_id' => $data['link_id'],
+					'link_no' => ++$idx,
+					'url' => $url,
+				);
+			}
+
+			$dao->insert_bulk('useful_link', $param);
+		} catch (Exception $e) {
+			LogManager::error($e->getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+	public static function updateSingleUsefulLinkData(_DatabaseAccess $dao, $link_id, $link_no, $url) {
+		try {
+
+			$condition = "link_id = ? AND link_no = ?";
+			$condition_param = array($link_id, $link_no);
+
+			$dao->update('useful_link', array('url'  => $url), $condition, $condition_param);
+
+		} catch (Exception $e) {
+			LogManager::debug($e->getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+	public static function findUsefulLink(_DatabaseAccess $dao, $accesskey, $link_id) {
+		$sql = "SELECT `useful_link`.`link_id`, `link_no`, `url`, `link`.`type` AS `link_type` FROM `useful_link` 
+				LEFT JOIN `snapshot` ON `useful_link`.`link_id` = `snapshot`.`link_id`
+				LEFT JOIN `link` ON `useful_link`.`link_id` = `link`.`id`
+				WHERE `useful_link`.`link_id` = ?
+				AND `snapshot`.`accesskey` = ?
+				AND `useful` = 0 LIMIT 5";
+
+		$param = array($link_id, $accesskey);
+
+		return $dao->selectArray($sql, $param);
+	}
+
+	public static function alreadyUseLink(_DatabaseAccess $dao, $link_id, $link_no) {
+		try {
+			$condition = "link_id = ? AND link_no = ?";
+			$condition_param = array($link_id, $link_no);
+
+			$dao->update('useful_link', array('useful' => 1), $condition, $condition_param);
+		} catch (Exception $e) {
+			LogManager::error($e->getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+	public static function getMultiLinkDataLimited(_DatabaseAccess $dao, $link_id, $limit, $offset) {
+		$ret = array();
+
+		$sql = "SELECT * FROM `useful_link` WHERE `link_id` = ? AND `useful` = 0 LIMIT ? OFFSET ?";
+
+		$param = array($link_id, $limit, $offset);
+		
+		$ret['list'] = $dao->selectArrayFoundRows($sql, $param);
+		$ret['count'] = $dao->getFoundRows();
+
+		return $ret;
+	}
+
+	public static function getSingleLinkData(_DatabaseAccess $dao, $link_id) {
+		$sql = "SELECT * FROM `useful_link` WHERE `link_id` = ?";
+		
+		$param = array($link_id);
+
+		return $dao->selectOne($sql, $param);
+	}
+
+	public static function getMaxLinkNo(_DatabaseAccess $dao, $link_id) {
+		$sql = "SELECT MAX(`link_no`) AS `no` FROM `useful_link` WHERE `link_id` = ?";
+
+		$param = array($link_id);
+
+		return $dao->selectOne($sql, $param);
 	}
 }

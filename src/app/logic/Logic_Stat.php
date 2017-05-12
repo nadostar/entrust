@@ -6,11 +6,18 @@
 class Logic_Stat extends _Logic_App {
 
 	public static function getStatDataByPid(_DatabaseAccess $dao, $pid) {
+		$ret = null;
+
+		$sql = "SELECT `pid`, SUM(`complate_count`) AS c, SUM(`screenout_count`) AS s, SUM(`quotafull_count`) AS q FROM `stat` WHERE `pid` = ?";
 		
+		$param = array($pid);
+		$ret = $dao->selectOne($sql, $param);
+
+		return $ret;
 	}
 
-	public static function getStatData(_DatabaseAccess $dao) {
-		
+	public static function getStatDataByLinkId(_DatabaseAccess $dao, $pid, $link_id) {
+
 	}
 
 	public static function insertStatData(_DatabaseAccess $dao, $data) {
