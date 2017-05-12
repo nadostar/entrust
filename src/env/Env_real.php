@@ -17,9 +17,9 @@ class Env {
 	
     const HSP_URL = "http://alpha-httpgw.hangame.com:18080/hsp/httpgw/nomad.json";
     
-    const SURVEY_URL = "http://47.91.170.199/api/survey/?r={accesskey}&uid={uid}";
+    const SURVEY_URL = "http://47.91.170.199/api/survey/?r={accesskey}&esid={1}";
     
-    const RECEIVE_URL = "http://47.91.170.199/api/receive/?r={accesskey}&s={status}&uid={uid}";
+    const RECEIVE_URL = "http://47.91.170.199/api/receive/?r={accesskey}&k={status}&esid={1}";
 
     /** 인증여부 */
     const IS_LOGIN_CHECK = true;

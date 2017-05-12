@@ -12,7 +12,6 @@ DROP TABLE IF EXISTS `link`;
 DROP TABLE IF EXISTS `useful_link`;
 DROP TABLE IF EXISTS `link_history`;
 DROP TABLE IF EXISTS `partner`;
-DROP TABLE IF EXISTS `accesskeys`;
 DROP TABLE IF EXISTS `stat`;
 DROP TABLE IF EXISTS `share`;
 DROP TABLE IF EXISTS `snapshot`;
@@ -58,7 +57,6 @@ CREATE TABLE IF NOT EXISTS `link` (
 	`id` varchar(8) NOT NULL,
 	`name` varchar(255) NOT NULL,
 	`type` tinyint(1) NOT NULL DEFAULT 0,
-	`url` varchar(1024) NOT NULL,
 	`disable` tinyint(1) NOT NULL DEFAULT 0,
 	`created_at` datetime NOT NULL,
 	`updated_at` datetime NOT NULL,
@@ -68,13 +66,14 @@ CREATE TABLE IF NOT EXISTS `link` (
 	KEY `idx_link_type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- useful_link
 CREATE TABLE IF NOT EXISTS `useful_link` (
 	`link_id` varchar(8) NOT NULL,
-	`link_no` int(11) NOT NULL DEFAULT 0
+	`link_no` int(11) NOT NULL DEFAULT 0,
 	`url` varchar(1024) NOT NULL,
 	`useful` tinyint(1) NOT NULL DEFAULT 0,
 	`created_at` datetime NOT NULL,
-	`updated_at` datetime NOT NULL
+	`updated_at` datetime NOT NULL,
 	PRIMARY KEY (`link_id`, `link_no`),
 	KEY `idx_useful_useful` (`useful`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -114,18 +113,6 @@ CREATE TABLE IF NOT EXISTS `partner` (
 	KEY `idx_partner_link_id` (`link_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- accesskeys
-CREATE TABLE IF NOT EXISTS `accesskeys` (
-	`accesskey` varchar(16) NOT NULL,
-	`pid` varchar(8) NOT NULL,
-	`link_id` varchar(8) NOT NULL,
-	`partner_id` varchar(8) NOT NULL,
-	`disable` tinyint(1) NOT NULL DEFAULT 0,
-	PRIMARY KEY (`accesskey`, `disable`),
-	KEY `idx_accesskeys_link_id` (`link_id`),
-	KEY `idx_accesskeys_pid` (`pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- snapshot
 CREATE TABLE IF NOT EXISTS `snapshot` (
 	`accesskey` varchar(16) NOT NULL,
@@ -134,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `snapshot` (
 	`partner_id` varchar(8) NOT NULL,
 	PRIMARY KEY (`accesskey`, `partner_id`),
 	KEY `idx_snapshot_pid` (`pid`),
-	KEY `idx_snapshot_link_id` (`link_id`),
+	KEY `idx_snapshot_link_id` (`link_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
