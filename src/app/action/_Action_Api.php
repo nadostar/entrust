@@ -40,10 +40,10 @@ abstract class _Action_Api extends _Action {
 	
 		$this->master_db = $this->getDB('master');
 		$this->slave_db = $this->getDB('slave');
-		$this->master_db->startTransaction();
+		//$this->master_db->startTransaction();
 	
 		$this->log_db = $this->getDB('log');
-		$this->log_db->startTransaction();
+		//$this->log_db->startTransaction();
 	
 		//MasterDataAccess::configure($this->slave_db);
 	}
@@ -55,11 +55,11 @@ abstract class _Action_Api extends _Action {
         parent::postAction();
         
         if (!is_null($this->master_db)) {
-        	$this->master_db->commit();
+        	//$this->master_db->commit();
         }
         
         if (!is_null($this->log_db)) {
-        	$this->log_db->commit();
+        	//$this->log_db->commit();
         }
 
         $this->trace(__METHOD__);
@@ -70,11 +70,11 @@ abstract class _Action_Api extends _Action {
      */
     protected function onError(Exception $e) {
     	if (!is_null($this->master_db)) {
-    		$this->master_db->rollback();
+    		//$this->master_db->rollback();
     	}
     
     	if (!is_null($this->log_db)) {
-    		$this->log_db->rollback();
+    		//$this->log_db->rollback();
     	}
     
     	$this->error($e->__toString());

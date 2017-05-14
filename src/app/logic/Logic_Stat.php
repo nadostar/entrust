@@ -33,6 +33,7 @@ class Logic_Stat extends _Logic_App {
 
 	public static function recordStatData(_DatabaseAccess $dao, $kind, $data) {
 		try {
+			$dao->startTransaction();
 
 			$update_sql = "";
 
@@ -51,9 +52,10 @@ class Logic_Stat extends _Logic_App {
 			$sql = sprintf("UPDATE stat SET ".$update_sql." WHERE `pid` = '%s' AND `link_id` = '%s'", $data['pid'], $data['link_id']);
 
 			$dao->sendQuery($sql);
-
+			$dao->commit();
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
+			$dao->rollback();
 			return false;
 		}
 
