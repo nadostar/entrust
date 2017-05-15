@@ -12,12 +12,13 @@
         <table class="table table-hover table-mail ">
             <thead>
             <tr>
+                <th>Project</th>
                 <th>#</th>
                 <th>Name</th>
                 <th>Country</th>
                 <th>Related Link</th>
                 <th>Max Sample</th>
-                <th>Max Requset</th>
+                <th>Max Hits</th>
                 <th>Status</th>
                 <th>Date</th>
                 <th></th>
@@ -27,22 +28,25 @@
             <?php if(!empty($data)): ?>
             <?php foreach ($data as $idx => $row): ?>
             <tr>
+                <td><?php es($row['pid']);?> (<?php es($row['project_name']);?>)</td>
                 <td><a href="#" class="viewer read" data-id="<?php es($row['id']); ?>" data-pid="<?php es($row['pid']); ?>"><?php es($row['id']); ?></a></td>
                 <td><?php es($row['name']);?></td>
                 <td><?php echo MasterData::getCountry($row['country']); ?></td>
                 <td><?php es($row['link_name']);?></td>
                 <td><?php es($row['sample_size']);?></td>
-                <td><?php es($row['request_limit']);?></td>
+                <td><?php es($row['hits_limit']);?></td>
                 <td><?php echo MasterData::getStatus($row['status']); ?></td>
                 <td><?php es($row['updated_at']);?></td>
                 <td>
-                
+                    <button type="button" class="accesskey btn btn-warning btn-xs" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] > 0) es("display: none;"); ?>""><i class="fa fa-retweet"></i> AccessKey</button>
+                    <button type="button" class="survey-link btn btn-warning btn-xs" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] == 0) es("display: none;"); ?>""><i class="fa fa-send"></i> Survey Links</button>
+                    <button type="button" class="setting-toggle btn btn-plain btn-xs" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getPartnerStatusControl($row['status']); ?></button>
                 </td>
             </tr>
             <?php endforeach; ?>
             <?php else: ?>
             <tr>
-                <td colspan="9" class="text-center">No found data.</td>
+                <td colspan="10" class="text-center">No found data.</td>
             </tr>
             <?php endif; ?>
             </tbody>

@@ -61,7 +61,6 @@ $(function(){
                 'pid': pid
             }
             $('#viewer').load(urls['viewer'], params, function(response, status, err){
-                console.log('loaded', status);
 
                 if(status == "error") {
                     toastr.error(response, status);
@@ -83,10 +82,7 @@ $(function(){
                 'id': id
             };
 
-            console.log(urls['viewer'], params);
-
             $('#viewer').load(urls['viewer'], params, function(response, status, err){
-                console.log('loaded', status);
 
                 if(status == 'error') {
                     toastr.error(response, status);
@@ -98,8 +94,6 @@ $(function(){
         .on('click', "a.save-form", function(){
             var form = $('form')[1];
             var formData = new FormData(form);
-
-            console.log(urls['saveChanges'], formData);
 
             swal({
               title: "Are you sure?",
@@ -155,8 +149,6 @@ $(function(){
             }
             var url = urls['partner'] + id;
 
-            console.log(url);
-
             location.href = url;
 
             return false;
@@ -169,10 +161,7 @@ $(function(){
                 'id': id
             };
 
-            console.log(urls['usefulLinks'], params);
-
             $('#usefullinks-viewer').load(urls['usefulLinks'], params, function(response, status, err){
-                console.log('loaded', status);
 
                 if(status == 'error') {
                     toastr.error(response, status);

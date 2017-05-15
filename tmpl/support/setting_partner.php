@@ -78,7 +78,7 @@ var urls = {
     'search': "<?php url('support/setting_partner/?m=search', true, false); ?>",
     'viewer': "<?php url('support/setting_partner/?m=viewer', true, false); ?>",
     'saveChanges': "<?php url('support/setting_partner/?m=saveChanges', true, false); ?>",
-    'control': "<?php url('support/setting_partner/?m=control', true, false); ?>",
+    'toggle': "<?php url('support/setting_partner/?m=toggle', true, false); ?>",
     'accesskey': "<?php url('support/setting_partner/?m=accesskey', true, false); ?>",
     'show': "<?php url('support/setting_partner/?m=show', true, false); ?>",
 };
@@ -95,7 +95,6 @@ $(function(){
                 'pid': pid
             };
             $('#viewer').load(urls['viewer'], params, function(response, status, err){
-                console.log('loaded', status);
 
                 if(status == "error") {
                     toastr.error(response, status);
@@ -119,10 +118,7 @@ $(function(){
                 'pid': pid
             };
 
-            console.log(urls['viewer'], params);
-
             $('#viewer').load(urls['viewer'], params, function(response, status, err){
-                console.log('loaded', status);
 
                 if(status == 'error') {
                     toastr.error(response, status);
@@ -136,8 +132,6 @@ $(function(){
             var $form = $button.parents('form');
             var params = $form.serializeJSON();
 
-            console.log(urls['saveChanges'], params);
-
             swal({
               title: "Are you sure?",
               text: "Would you like to save change this data.",
@@ -148,7 +142,6 @@ $(function(){
             },
             function(){
                 $.post(urls['saveChanges'], params).done(function(response){
-                    console.log(response);
 
                     var result = JSON.parse(response);
 
@@ -173,7 +166,7 @@ $(function(){
 
             return false;
         })
-        .on('click', "button.setting-control", function(){
+        .on('click', "button.setting-toggle", function(){
             var $button = $(this);
             var id = $button.data('id');
             var status = $button.data('status');
@@ -197,8 +190,7 @@ $(function(){
               showLoaderOnConfirm: true,
             },
             function(){
-                $.post(urls['control'], params).done(function(response){
-                    console.log(response);
+                $.post(urls['toggle'], params).done(function(response){
 
                     var result = JSON.parse(response);
 
@@ -235,8 +227,6 @@ $(function(){
             var params = {
                 'id': id
             };
-
-            console.log(urls['accesskey'], params);
             
             swal({
               title: "Are you sure?",
@@ -248,7 +238,6 @@ $(function(){
             },
             function(){
                 $.post(urls['accesskey'], params).done(function(response){
-                    console.log(response);
 
                     var result = JSON.parse(response);
 
@@ -256,9 +245,9 @@ $(function(){
                         toastr.success(result.message);
                         swal("Success!", result.message, "success");
 
-                        //$button.attr("disabled", true);
-                        $button.hide();
-                        //$('button.download').attr("disabled", false);
+                        $button.toggle();
+                        $('#survey-link').toggle();
+                        
                     } else {
                         toastr.error(result.message);
                         swal("Fail!", result.message, "error");

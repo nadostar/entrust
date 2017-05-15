@@ -10,8 +10,6 @@ class Action_SettingLink extends _Action_Support {
 
 	private $action = null;
 	
-	private $export_file = "entrust_link_{date}.csv";
-
 	protected function initialize() {
 		parent::initialize();
 
@@ -32,8 +30,6 @@ class Action_SettingLink extends _Action_Support {
 		$this->registValidatorMap('url');	
 		$this->registValidatorMap('attachment');
 
-		$this->registValidatorMap('download_id');
-		
 		try {
 			$this->validParam();
 		} catch (Exception $e) {
@@ -91,8 +87,6 @@ class Action_SettingLink extends _Action_Support {
 			'pid' => $pid
 		);
 		
-		LogManager::debug($pager->output($params));
-
 		$this->output->assign('pager', $pager->output($params));
 
 		$this->output->setTmpl('support/_setting_link_list.php');
@@ -134,7 +128,7 @@ class Action_SettingLink extends _Action_Support {
 
 			$useful_link_data = array(
 				'link_id' => $params['id'],
-				'link_no' => 0,
+				'link_no' => 0, // this is single type
 			);
 
 			if($params['type'] == 0) {
@@ -154,23 +148,30 @@ class Action_SettingLink extends _Action_Support {
 				$useful_link_data['url'] = $url_array;
 			}
 
-			$max_link_no = Logic_Link::getMaxLinkNo($this->slave_db, $params['id']);
+			$max_link_no = Logic_Link::getUsefulLinkMaxNo($this->slave_db, $params['id']);
 						
 			if(!empty($max_link_no['no'])) {
 				$useful_link_data['link_no'] = $max_link_no['no'];
 			}
 			
+			// single 의 경우 데이터 수정 처리;
+			// multi 의 경우 신규 데이터 처리;
 			if($params['type'] == 0) {
 				if(!empty($id)) {
-					Logic_Link::updateSingleUsefulLinkData($this->master_db, $useful_link_data['link_id'], 1, $useful_link_data['url'][0]);
+					if(!Logic_Link::updateSingleUsefulLinkData($this->master_db, $useful_link_data['link_id'], 1, $useful_link_data['url'][0])) {
+						$result_map['status'] = false;
+						$result_map['message'] = 'transaction fail!';
+					}
 				} else {
-					Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data);
+					if(!Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data)) {
+						$result_map['status'] = false;
+						$result_map['message'] = 'transaction fail!';
+					}
 				}
 			} else {
-				if(Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data)) {
-					LogManager::debug("ok");
-				} else {
-					LogManager::debug("no");
+				if(!Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data)) {
+					$result_map['status'] = false;
+					$result_map['message'] = 'transaction fail!';
 				}
 			}
 		}

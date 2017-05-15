@@ -55,11 +55,8 @@
 
     <div id="result" class="row"></div>
     <div id="viewer" class="row"></div>
+    <div id="usefullinks-viewer" class="row"></div>
 </div>
-
-<?php start_form_tag('support/link/?m=download', 'post', 'download_form'); ?>
-    <input type="hidden" id="download_id" name="download_id">
-<?php end_form_tag(); ?>
 
 <?php include __DIR__ . '/__footer.php'; ?>
 </div>
@@ -70,7 +67,8 @@ var urls = {
     'search': "<?php url('support/link/?m=search', true, false); ?>",
     'viewer': "<?php url('support/link/?m=viewer', true, false); ?>",
     'saveChanges': "<?php url('support/link/?m=saveChanges', true, false); ?>",
-    'accesskey': "<?php url('support/link/?m=accesskey', true, false); ?>",
+    'partner': "<?php url('support/partner/?pid=', true, false); ?>",
+    'usefulLinks': "<?php url('support/link/?m=usefulLinks', true, false); ?>",
 };
 
 var global = new Entrust(urls);
@@ -80,8 +78,7 @@ $(function(){
     $('body')
         .on('click', "button.new-form", function() {
             $('#viewer').load(urls['viewer'], function(response, status, err){
-                console.log('loaded', status);
-
+                
                 if(status == "error") {
                     toastr.error(response, status);
                 }
@@ -102,10 +99,7 @@ $(function(){
                 'id': id
             };
 
-            console.log(urls['viewer'], params);
-
             $('#viewer').load(urls['viewer'], params, function(response, status, err){
-                console.log('loaded', status);
 
                 if(status == 'error') {
                     toastr.error(response, status);
@@ -118,8 +112,6 @@ $(function(){
             var form = $('form')[2];
             var formData = new FormData(form);
             
-            console.log(urls['saveChanges'], formData);
-
             swal({
               title: "Are you sure?",
               text: "Would you like to save change this data.",
@@ -164,74 +156,47 @@ $(function(){
             
             return false;
         })
-        .on('click', 'a.discard-form', function(){
-            $('#viewer').empty();
-            return false;
-        })
-        .on('click', 'button.accesskey', function(){
+        .on('click', "button.partner", function(){
             var $button = $(this);
             var id = $button.data('id');
 
             if(!id) {
-                toastr.error("Missing ID.");
+                toastr.error("Missing ID");
                 return;
             }
+            var url = urls['partner'] + id;
 
-            var params = {
+            location.href = url;
+
+            return false;
+        })
+        .on('click', "button.usefullinks", function(){
+            var $button = $(this);
+            var id = $button.data('id');
+
+            params = {
                 'id': id
             };
 
-            console.log(urls['accesskey'], params);
-            
-            swal({
-              title: "Are you sure?",
-              text: "Generate accesskey.",
-              type: "info",
-              showCancelButton: true,
-              closeOnConfirm: false,
-              showLoaderOnConfirm: true,
-            },
-            function(){
-                $.post(urls['accesskey'], params).done(function(response){
-                    console.log(response);
+            $('#usefullinks-viewer').load(urls['usefulLinks'], params, function(response, status, err){
 
-                    var result = JSON.parse(response);
-
-                    if(result.status) {
-                        toastr.success(result.message);
-                        swal("Success!", result.message, "success");
-
-                        $button.attr("disabled", true);
-                        $('button.download').attr("disabled", false);
-                    } else {
-                        toastr.error(result.message);
-                        swal("Fail!", result.message, "error");
-
-                    }
-                }).fail(function(response, status, err){
-                    console.log(response, status, err);
-                    toastr.error(response.responseText, err);
-                    swal(err, result.message, "error");
-                });
+                if(status == 'error') {
+                    toastr.error(response, status);
+                }
             });
-
 
             return false;
         })
-        .on('click', 'button.download', function(){
-            var $button = $(this);
-            var id = $button.data('id');
-
-            if(!id) {
-                toastr.error("Missing ID.");
-                return;
-            }
-
-            console.log(urls['download'], id);
-
-            document.getElementById('download_id').value = id;
-            document.download_form.submit();
-
+        .on('click', "button.useful-page-prev", function(){
+            global.pager2($(this), urls['usefulLinks'], "usefullinks-viewer");
+            return false;
+        })
+        .on('click', "button.useful-page-next", function(){
+            global.pager2($(this), urls['usefulLinks'], "usefullinks-viewer");
+            return false;
+        })
+        .on('click', 'a.discard-form', function(){
+            $('#viewer').empty();
             return false;
         })
         .on('click', "button.page-prev", function(){

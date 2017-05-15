@@ -92,11 +92,12 @@
                     <div class="col-sm-2">
                         <input type="text" name="sample_size" class="form-control" value="<?php es($partner['sample_size']);?>" placeholder="0"> 
                     </div>
+                    <label id="hits_comment" class="control-label"><?php es($partner['hits_comment']);?></label>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Request limit *</label>
+                    <label class="col-sm-2 control-label">Hits limit *</label>
                     <div class="col-sm-2">
-                        <input type="text" name="request_limit" class="form-control" value="<?php es($partner['request_limit']);?>" placeholder="0">
+                        <input type="text" name="hits_limit" class="form-control" value="<?php es($partner['hits_limit']);?>" placeholder="0">
                     </div>
                 </div>
                 <div class="ibox-content text-right">
@@ -124,10 +125,8 @@ $(function(){
             "pid": pid
         };
 
-        console.log(urls['ajaxLink'], params);
-
         $.post(urls['ajaxLink'], params).done(function(response){
-            console.log(response);
+            
             var data = JSON.parse(response).list;
             
             $('#link_id').empty();
@@ -146,6 +145,12 @@ $(function(){
                     })
                 );
             }
+
+            var hits = JSON.parse(response).hits;
+            
+            console.log("Available sample size is " + hits['used_sample_size'] + "/" + hits['max_sample_size']);
+
+            $('#hits_comment').html("Available sample size is " + hits['used_sample_size'] + "/" + hits['max_sample_size']);
 
         }).fail(function(response, status, err){
             console.log(response, status, err);

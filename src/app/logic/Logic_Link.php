@@ -147,7 +147,7 @@ class Logic_Link extends _Logic_App {
 		return $dao->selectOne($sql, $param);
 	}
 
-	public static function getMaxLinkNo(_DatabaseAccess $dao, $link_id) {
+	public static function getUsefulLinkMaxNo(_DatabaseAccess $dao, $link_id) {
 		$sql = "SELECT MAX(`link_no`) AS `no` FROM `useful_link` WHERE `link_id` = ?";
 
 		$param = array($link_id);

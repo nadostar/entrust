@@ -73,7 +73,7 @@ var urls = {
     'search': "<?php url('support/project/?m=search', true, false); ?>",
     'viewer': "<?php url('support/project/?m=viewer', true, false); ?>",
     'saveChanges': "<?php url('support/project/?m=saveChanges', true, false); ?>",
-    'control': "<?php url('support/project/?m=control', true, false); ?>",
+    'toggle': "<?php url('support/project/?m=toggle', true, false); ?>",
     'link': "<?php url('support/setting_link/?pid=', true, false); ?>",
     'partner': "<?php url('support/setting_partner/?pid=', true, false); ?>",
 };
@@ -85,8 +85,6 @@ $(function(){
     $('body')
         .on('click', "button.new-form", function(){
             $('#viewer').load(urls['viewer'], function(response, status, err){
-                console.log('loaded', status);
-
                 if(status == "error") {
                     toastr.error(response, status);
                 }
@@ -107,11 +105,7 @@ $(function(){
                 'id': id
             };
 
-            console.log(urls['viewer'], params);
-
             $('#viewer').load(urls['viewer'], params, function(response, status, err){
-                console.log('loaded', status);
-
                 if(status == "error") {
                     toastr.error(response, status);
                 }
@@ -124,8 +118,6 @@ $(function(){
             var $form = $button.parents('form');
             var params = $form.serializeJSON();
 
-            console.log(urls['saveChanges'], params);
-            
             swal({
               title: "Are you sure?",
               text: "Would you like to save change this data.",
@@ -136,8 +128,6 @@ $(function(){
             },
             function(){
                 $.post(urls['saveChanges'], params).done(function(response){
-                    console.log(response);
-
                     var result = JSON.parse(response);
 
                     if(result.status){
@@ -161,7 +151,7 @@ $(function(){
 
             return false;
         })
-        .on('click', "button.setting-control", function(){
+        .on('click', "button.setting-toggle", function(){
             var $button = $(this);
             var id = $button.data('id');
             var status = $button.data('status');
@@ -178,16 +168,14 @@ $(function(){
             
             swal({
               title: "Are you sure?",
-              text: "Would you like to save change this data.",
+              text: "Would you like to save change the status.",
               type: "info",
               showCancelButton: true,
               closeOnConfirm: false,
               showLoaderOnConfirm: true,
             },
             function(){
-                $.post(urls['control'], params).done(function(response){
-                    console.log(response);
-
+                $.post(urls['toggle'], params).done(function(response){
                     var result = JSON.parse(response);
 
                     if(result.status){
@@ -222,8 +210,6 @@ $(function(){
 
             var url = urls['link'] + id;
 
-            console.log(url);
-
             location.href = url;
 
             return false;
@@ -237,8 +223,6 @@ $(function(){
                 return;
             }
             var url = urls['partner'] + id;
-
-            console.log(url);
 
             location.href = url;
 

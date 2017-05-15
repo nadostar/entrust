@@ -48,9 +48,9 @@
                 <td><?php es($row['updated_at']);?></td>
                 <td>
                     <button type="button" class="setting-link btn btn-success btn-xs" data-id="<?php es($row['id']); ?>"><i class="fa fa-link"></i> Link</button>
-                    <button type="button" class="setting-partner btn btn-info btn-xs" data-id="<?php es($row['id']); ?>"><i class="fa fa-share-alt"></i> Partner</button>
+                    <button type="button" class="setting-partner btn btn-info btn-xs" data-id="<?php es($row['id']); ?>"><i class="fa fa-users"></i> Partner</button>
                     <?php if($row['status'] > 0): ?>
-                    <button type="button" class="setting-control btn btn-plain btn-xs" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getProjectStatusControl($row['status']); ?></button>
+                    <button type="button" class="setting-toggle btn btn-plain btn-xs" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getProjectStatusControl($row['status']); ?></button>
                     <?php endif; ?>
                 </td>
             </tr>

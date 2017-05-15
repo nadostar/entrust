@@ -10,6 +10,7 @@ class Logic_Project extends _Logic_App {
 
 		$sql = "SELECT * FROM `project` WHERE 1 = 1";
 		
+		// search zone
 		if(!empty($pid)) {
 			$sql .= sprintf(" AND `id` = '%s'", $pid);
 		}
@@ -21,7 +22,7 @@ class Logic_Project extends _Logic_App {
 		if(!empty($sales)) {
 			$sql .= sprintf(" AND `sales` = '%s'", $sales);
 		}
-
+		// search zone
 		$sql.= " ORDER BY `id` DESC LIMIT ? OFFSET ?";
 
 		$param = array($limit, $offset);
@@ -33,7 +34,7 @@ class Logic_Project extends _Logic_App {
 	}
 
 	public static function getProjectDataMap(_DatabaseAccess $dao) {
-		$sql = "SELECT `id`, `name` from project WHERE `status` < 2";
+		$sql = "SELECT `id`, `name` FROM project WHERE `status` < 2";
 		
 		return $dao->selectArray($sql);
 	}

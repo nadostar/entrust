@@ -55,7 +55,7 @@
                 <div class="single form-group" style="<?php if($link['type'] == 1) es("display: none;");?>">
                     <label class="col-sm-2 control-label">URL *</label>
                     <div class="col-sm-9">
-                		<textarea class="form-control" id="url" name="url" rows="3" placeholder="Please insert client link here."></textarea>
+                		<textarea class="form-control" id="url" name="url" rows="3" placeholder="Please insert client link here."><?php if($link['type'] == 0) es($link['url']); ?></textarea>
                     </div>
                 </div>
 

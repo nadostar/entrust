@@ -56,8 +56,6 @@ class Action_Project extends _Action_Support {
 	}
 
 	protected function doAction() {
-		LogManager::debug($this->action);
-
 		switch ($this->action) {
 			case 'search':
 				$this->search();
@@ -68,8 +66,8 @@ class Action_Project extends _Action_Support {
 			case 'viewer':
 				$this->viewer();
 				break;
-			case 'control':
-				$this->control();
+			case 'toggle':
+				$this->toggle();
 				break;
 			default:
 				$target = array(
@@ -100,7 +98,7 @@ class Action_Project extends _Action_Support {
 			foreach ($data['list'] as $idx => $row) {
 				$data['list'][$idx]['join_in_size'] = 0;
 
-				$statdata = Logic_Stat::getStatDataByPid($this->slave_db, $row['id']);
+				$statdata = Logic_Stat::getStatDataByProjectId($this->slave_db, $row['id']);
 				
 				if(!empty($statdata['pid'])) {
 					$data['list'][$idx]['c'] = $statdata['c'];
@@ -129,12 +127,12 @@ class Action_Project extends _Action_Support {
 		$pager->setPager($data['count'], self::PAGER_ARM_LENGTH);
 		
 		$params = array(
-			'pid' => trim($pid),
-			'status' => trim($status),
-			'sales' => trim($sales),
+			'pid' 		=> trim($pid),
+			'status' 	=> trim($status),
+			'sales' 	=> trim($sales),
 		);
 
-		LogManager::debug($pager->output($params));
+		//LogManager::debug($pager->output($params));
 		$this->output->assign('pager', $pager->output($params));
 
 		$this->output->setTmpl('support/_project_list.php');
@@ -223,9 +221,11 @@ class Action_Project extends _Action_Support {
 		$this->output->setTmpl('support/_project_viewer.php');
 	}
 
-	private function control() {
+	private function toggle() {
 		$id = $this->getQuery('id');
 		
+		// status (0:Pending, 1:Active, 2:Closed)
+		// status toggle
 		switch ($this->getQuery('status')) {
 			case '1':
 				$status = 2;

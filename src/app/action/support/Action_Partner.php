@@ -39,7 +39,7 @@ class Action_Partner extends _Action_Support {
 			$this->registValidatorMap('screenout', 		'Validator_Input', 'Screen out URL is required.');
 			$this->registValidatorMap('quotafull', 		'Validator_Input', 'Quotafull URL is required.');
 			$this->registValidatorMap('sample_size', 	'Validator_Input', 'Sample size is required.');
-			$this->registValidatorMap('request_limit', 	'Validator_Input', 'Request limit is required.');
+			$this->registValidatorMap('hits_limit', 	'Validator_Input', 'Hits limit is required.');
 		}
 
 		try {
@@ -51,7 +51,6 @@ class Action_Partner extends _Action_Support {
 	}
 
 	protected function doAction() {
-		LogManager::debug($this->action);
 
 		switch ($this->action) {
 			case 'search':
@@ -62,6 +61,15 @@ class Action_Partner extends _Action_Support {
 				break;
 			case 'viewer':
 				$this->viewer();
+				break;
+			case 'toggle':
+				$this->toggle();
+				break;
+			case 'accesskey':
+				$this->accesskey();
+				break;
+			case 'show':
+				$this->show();
 				break;
 			case 'ajaxLink':
 				$this->ajaxLink();
@@ -99,8 +107,6 @@ class Action_Partner extends _Action_Support {
 		$params = array(
 			'search' => $pid
 		);
-		
-		LogManager::debug($pager->output($params));
 
 		$this->output->assign('pager', $pager->output($params));
 
@@ -124,11 +130,20 @@ class Action_Partner extends _Action_Support {
 			'screenout_url' => $this->getQuery('screenout'),
 			'quotafull_url' => $this->getQuery('quotafull'),
 			'sample_size' 	=> $this->getQuery('sample_size'),
-			'request_limit' => $this->getQuery('request_limit'),
+			'hits_limit' 	=> $this->getQuery('hits_limit'),
 			'link_id' 		=> $this->getQuery('link_id'),
 			'pid' 			=> $pid,
 		);
 
+		// Checking Available sample size
+		$partner_data = Logic_Partner::getPartnerSampleSizeByProjectId($this->slave_db, $pid);
+		$project_data = Logic_Project::getProjectDataById($this->slave_db, $pid);
+		$available = $project_data['sample'] - $partner_data['sample'];
+		
+		if($params['sample_size'] > $available) {
+			$this->error_msg = "Exceeded usable sample size";
+		}
+		
 		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
 
 		if(strlen($this->error_msg) > 0) {
@@ -162,6 +177,16 @@ class Action_Partner extends _Action_Support {
 
 	private function viewer() {
 		$id = $this->getQuery('id');
+		$pid = $this->getQuery('pid');
+
+		$project_data = Logic_Project::getProjectDataById($this->slave_db, $pid);
+
+		$hits_comment = '';
+		if(!empty($project_data)) {
+			$hits_comment = 'Available sample size is 0/'.$project_data['sample'];
+		}
+		
+		LogManager::debug($project_data);
 
 		$partner = array(
 			'id'			=> '',
@@ -171,8 +196,9 @@ class Action_Partner extends _Action_Support {
 			'screenout_url' => '',
 			'quotafull_url' => '',
 			'sample_size' 	=> '0',
-			'request_limit' => '0',
+			'hits_limit' 	=> '0',
 			'link_id' 		=> '',
+			'hits_comment'  => $hits_comment,
 			'pid' 			=> '',
 		);
 
@@ -180,7 +206,9 @@ class Action_Partner extends _Action_Support {
 
 		if(!empty($id)) {
 			$partner = Logic_Partner::getPartnerDataById($this->slave_db, $id);	
-			$link_data = Logic_Link::getLinkDataByPid($this->slave_db, $partner['pid']);
+			$link_data = Logic_Link::getLinkDataByProjectId($this->slave_db, $partner['pid']);
+
+			$partner['hits_comment'] = 'Available sample size is '.$partner['used_sample_size'].'/'.$project_data['sample'];
 		}
 
 		$project_data = Logic_Project::getProjectDataMap($this->slave_db);
@@ -192,12 +220,110 @@ class Action_Partner extends _Action_Support {
 		$this->output->setTmpl('support/_partner_viewer.php');		
 	}
 
+	private function toggle(){
+		$id = $this->getQuery('id');
+		$status = $this->getQuery('status');
+
+		// status 0:active, 1:closed
+		// status toggle
+		switch ($this->getQuery('status')) {
+			case '0':
+				$status = 1;
+				break;
+			case '1':
+				$status = 0;
+				break;
+		}
+
+		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
+		if(!Logic_Partner::changePartnerStatus($this->master_db, $id, $status)) {
+			$result_map['status'] = false;
+			$result_map['message'] = 'transaction fail!';
+		}
+
+		$this->sendJsonResult($result_map);
+	}
+
+	private function accesskey() {
+		$id = $this->getQuery('id');
+
+		$result_map = array('status' => true, 'message' => 'Generate accesskey success!');
+
+		$accesskey = Util_GenerateId::generateId(16);
+
+		$partnerdata = Logic_Partner::getPartnerDataById($this->slave_db, $id);
+	
+		$data = array(
+			'accesskey' => $accesskey,
+			'pid' => $partnerdata['pid'],
+			'link_id' => $partnerdata['link_id'],
+			'partner_id' => $partnerdata['id']
+		);
+	
+		if(Logic_Snapshot::insertSnapshotData($this->master_db, $data)) {
+			Logic_Project::changeProjectStatus($this->master_db, $data['pid'], $active = 1);
+
+			$statdata = array(
+				'pid' => $data['pid'],
+				'link_id' => $data['link_id'],
+				'partner_id' => $data['partner_id']
+			);
+
+			Logic_Stat::insertStatData($this->master_db, $statdata);
+		} else {
+			$result_map['status'] = false;
+			$result_map['message'] = 'transaction fail!';	
+		}
+
+		$this->sendJsonResult($result_map);
+	}
+
+	private function show() {
+		$id = $this->getQuery('id');
+
+		$snapshot = Logic_Snapshot::getSnapshotDataByPartnerId($this->slave_db, $id);
+		
+		$surveylink = Env::SURVEY_URL;
+		$joinin_url = str_replace('{accesskey}', $snapshot['accesskey'], $surveylink);
+
+		$receivelink = Env::RECEIVE_URL;
+		$complate_url = strtr($receivelink, array('{accesskey}' => $snapshot['accesskey'], '{status}' => 'c'));
+		$screenout_url = strtr($receivelink, array('{accesskey}' => $snapshot['accesskey'], '{status}' => 's'));
+		$quotafull_url = strtr($receivelink, array('{accesskey}' => $snapshot['accesskey'], '{status}' => 'q'));
+
+		$data = array(
+			'joinin_url' => $joinin_url,
+			'complate_url' => $complate_url,
+			'screenout_url' => $screenout_url,
+			'quotafull_url' => $quotafull_url
+		);
+
+		$this->sendJsonResult($data);
+	}
+
 	private function ajaxLink() {
 		$pid = $this->getQuery('pid');
 
-		$link_data = Logic_Link::getLinkDataByPid($this->slave_db, $pid);
+		$link_data = Logic_Link::getLinkDataByProjectId($this->slave_db, $pid);
 
-		$result_map = array('list' => $link_data);
-		$this->sendJsonResult($result_map);
+		$partner_data = Logic_Partner::getPartnerSampleSizeByProjectId($this->slave_db, $pid);
+		$project_data = Logic_Project::getProjectDataById($this->slave_db, $pid);
+		
+		$partner_sample_size = 0;
+		if(!is_null($partner_data['sample'])) {
+			$partner_sample_size = $partner_data['sample'];
+		}
+
+		$hits = array(
+			'max_sample_size' => $project_data['sample'],
+			'used_sample_size' => $partner_sample_size
+		);
+
+		$data = array(
+			'list' => $link_data,
+			'hits' => $hits
+		);
+
+		$this->sendJsonResult($data);
 	}
 }

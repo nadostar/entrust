@@ -6,11 +6,8 @@ Entrust.prototype.search = function() {
     var $form = $('#search-form');
     var params = $form.serializeJSON();
 
-    console.log(this.urls['search'], params);
-
     $.post(this.urls['search'], params)
         .done(function(response){
-            console.log(response);
             $('#result').html(response);
         })
         .error(function(response, status, err){
@@ -34,11 +31,7 @@ Entrust.prototype.viewer = function(that) {
         'id': key
     };
 
-    console.log(this.urls['viewer'], params);
-
     $('#viewer').load(this.urls['viewer'], params, function(response, status, err){
-        console.log('loaded', status);
-
         if(status == "error") {
             toastr.error(response, status);
         }
@@ -51,8 +44,6 @@ Entrust.prototype.pager = function(that) {
     var $button = $(that);
     var params = $button.data('params');
     
-    console.log(urls['search'], params);
-
     if(params) {
         $.post(urls['search'], params)
             .done(function(response){
@@ -69,8 +60,6 @@ Entrust.prototype.pager2 = function(that, url, result) {
     var $button = $(that);
     var params = $button.data('params');
     
-    console.log(url, params);
-
     if(params) {
         $.post(url, params)
             .done(function(response){

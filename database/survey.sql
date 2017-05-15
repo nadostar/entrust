@@ -124,15 +124,15 @@ CREATE TABLE IF NOT EXISTS `snapshot` (
 	KEY `idx_snapshot_link_id` (`link_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
 -- stat
 CREATE TABLE IF NOT EXISTS `stat` (
 	`pid` varchar(8) NOT NULL,
 	`link_id` varchar(8) NOT NULL,
+	`partner_id` varchar(8) NOT NULL,
 	`complate_count` int(11) NOT NULL DEFAULT 0,
 	`screenout_count` int(11) NOT NULL DEFAULT 0,
-	`quotafull_count` int(11) NOT NULL DEFAULT 0,
-	PRIMARY KEY(`pid`, `link_id`)
+	`quotafull_count` int(11) NOT NULL DEFAULT 0
+	PRIMARY KEY(`pid`, `link_id`, `partner_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- share

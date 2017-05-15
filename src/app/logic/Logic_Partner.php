@@ -24,8 +24,20 @@ class Logic_Partner extends _Logic_App {
 	}
 
 	public static function getPartnerDataById(_DatabaseAccess $dao, $id) {
-		$sql = "SELECT * FROM `partner` WHERE `id` = ?";
+		$sql = "SELECT `a`.*,
+						(SELECT SUM(`sample_size`) FROM `partner` WHERE `partner`.`pid` = `a`.`pid`) AS `used_sample_size`
+				FROM `partner` a
+				WHERE `a`.`id` = ?";
+
 		$param = array($id);
+
+		return $dao->selectOne($sql, $param);
+	}
+
+	public static function getPartnerSampleSizeByProjectId(_DatabaseAccess $dao, $project_id) {
+		$sql = "SELECT SUM(`sample_size`) AS `sample` FROM `partner` WHERE `pid` = ?";
+
+		$param = array($project_id);
 
 		return $dao->selectOne($sql, $param);
 	}

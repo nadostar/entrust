@@ -130,9 +130,7 @@ class Action_Receive extends _Action_Api {
 	}
 
 	protected function jumpToPartnerRedirectLink($snapshot, $history, $params) {
-
 		LogManager::debug($history);
-
 
 		$partner = Logic_Partner::getPartnerDataById($this->slave_db, $snapshot['partner_id']);
 
@@ -142,10 +140,24 @@ class Action_Receive extends _Action_Api {
 			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 
+		$stat = Logic_Stat::getStatDataByIds($this->slave_db, $snapshot);
+
+		if($stat['complate_count'] > $partner['sample_size']) {
+			LogManager::debug("[ERROR] code=83734, params=".json_encode($params));
+			//$this->errorlog($snapshot['pid'], 'Receive', "83730", "Project is not found", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
+
 		$url = "";
 		switch ($params['status']) {
 			case 'c':
 				$url = $this->generateURL($partner['complate_url'], array($params['esid']));
+
+				LogManager::debug(($stat['complate_count'] + 1)."    ".$partner['sample_size']);
+
+				if(($stat['complate_count'] + 1) == $partner['sample_size']) {
+					Logic_Partner::changePartnerStatus($this->master_db, $snapshot['partner_id'], 1);
+				}
 				break;
 			case 's':
 				$url = $this->generateURL($partner['screenout_url'], array($params['esid']));
@@ -157,7 +169,7 @@ class Action_Receive extends _Action_Api {
 
 		if($history['progress'] == 0) {
 			if($partner['status'] == 1) {
-				LogManager::debug("[ERROR] code=83734, params=".json_encode($params));
+				LogManager::debug("[ERROR] code=83735, params=".json_encode($params));
 				//$this->errorlog($snapshot['pid'], 'Receive', "83734", "Partner unactive", json_encode($params));
 				$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 			}

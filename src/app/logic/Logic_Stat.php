@@ -5,7 +5,7 @@
 */
 class Logic_Stat extends _Logic_App {
 
-	public static function getStatDataByPid(_DatabaseAccess $dao, $pid) {
+	public static function getStatDataByProjectId(_DatabaseAccess $dao, $pid) {
 		$ret = null;
 
 		$sql = "SELECT `pid`, SUM(`complate_count`) AS c, SUM(`screenout_count`) AS s, SUM(`quotafull_count`) AS q FROM `stat` WHERE `pid` = ?";
@@ -16,8 +16,12 @@ class Logic_Stat extends _Logic_App {
 		return $ret;
 	}
 
-	public static function getStatDataByLinkId(_DatabaseAccess $dao, $pid, $link_id) {
+	public static function getStatDataByIds(_DatabaseAccess $dao, $snapshot) {
+		$sql = "SELECT * FROM `stat` WHERE `pid` = ? AND `link_id` = ? AND `partner_id` = ?";
 
+		$param = array($snapshot['pid'], $snapshot['link_id'], $snapshot['partner_id']);
+
+		return $dao->selectOne($sql, $param);
 	}
 
 	public static function insertStatData(_DatabaseAccess $dao, $data) {
@@ -49,7 +53,7 @@ class Logic_Stat extends _Logic_App {
 					break;
 			}
 
-			$sql = sprintf("UPDATE stat SET ".$update_sql." WHERE `pid` = '%s' AND `link_id` = '%s'", $data['pid'], $data['link_id']);
+			$sql = sprintf("UPDATE stat SET ".$update_sql." WHERE `pid` = '%s' AND `link_id` = '%s' AND `partner_id` = '%s'", $data['pid'], $data['link_id'], $data['partner_id']);
 
 			$dao->sendQuery($sql);
 			$dao->commit();

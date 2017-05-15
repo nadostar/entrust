@@ -25,7 +25,7 @@
             <tr class="viewer read" data-id="<?php es($row['id']); ?>">
                 <td><?php es($row['admin_id']); ?></td>
                 <td>
-                    <span class="badge badge-plain"><?php es($row['category']); ?></span>
+                    <span class="badge badge-plain"><?php echo MasterData::getAdminLogCategory($row['category']); ?></span>
                 </td>
                 <td><?php es($row['ip_address']); ?></td>
                 <td><?php es($row['created_at']); ?></td>

@@ -25,7 +25,7 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label">Category</label>
                     <div class="col-lg-9">
-                        <p class="form-control-static"><span class="badge badge-plain"><?php es($log['category']);?></span></p>
+                        <p class="form-control-static"><span class="badge badge-plain"><?php echo MasterData::getAdminLogCategory($log['category']); ?></span></p>
                     </div>
                 </div>
                 <div class="form-group">

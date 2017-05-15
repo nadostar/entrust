@@ -185,6 +185,8 @@ class Action_Survey extends _Action_Api {
 				Logic_LinkHistory::insertLinkHistoryData($this->master_db, $historydata);
 			}
 			
+			Logic_Log::accesslog($this->log_db, $snapshot['accesskey'], 0, $params, $this->ip_address);
+
 			$this->jumpToPage($url);
 		} else {
 			LogManager::debug("history url");

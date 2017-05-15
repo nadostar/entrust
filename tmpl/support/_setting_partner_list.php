@@ -40,7 +40,7 @@
                 <td>
                     <button type="button" class="accesskey btn btn-warning btn-xs" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] > 0) es("display: none;"); ?>""><i class="fa fa-retweet"></i> AccessKey</button>
                     <button type="button" class="survey-link btn btn-warning btn-xs" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] == 0) es("display: none;"); ?>""><i class="fa fa-send"></i> Survey Links</button>
-                    <button type="button" class="setting-control btn btn-plain btn-xs" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getPartnerStatusControl($row['status']); ?></button>
+                    <button type="button" class="setting-toggle btn btn-plain btn-xs" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getPartnerStatusControl($row['status']); ?></button>
                 </td>
             </tr>
             <?php endforeach; ?>

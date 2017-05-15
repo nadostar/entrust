@@ -46,8 +46,7 @@ class Action_SettingPartner extends _Action_Support {
 	}
 
 	protected function doAction() {
-		LogManager::debug($this->action);
-
+		
 		switch ($this->action) {
 			case 'search':
 				$this->search();
@@ -58,8 +57,8 @@ class Action_SettingPartner extends _Action_Support {
 			case 'viewer':
 				$this->viewer();
 				break;
-			case 'control':
-				$this->control();
+			case 'toggle':
+				$this->toggle();
 				break;
 			case 'accesskey':
 				$this->accesskey();
@@ -99,8 +98,6 @@ class Action_SettingPartner extends _Action_Support {
 			'pid' => $pid
 		);
 		
-		LogManager::debug($pager->output($params));
-
 		$this->output->assign('pager', $pager->output($params));
 
 		$this->output->setTmpl('support/_setting_partner_list.php');
@@ -122,6 +119,15 @@ class Action_SettingPartner extends _Action_Support {
 			'link_id' 		=> $this->getQuery('link_id'),
 			'pid' 			=> $this->getQuery('pid'),
 		);
+
+		// Checking Available sample size
+		$partner_data = Logic_Partner::getPartnerSampleSizeByProjectId($this->slave_db, $this->getQuery('pid'));
+		$project_data = Logic_Project::getProjectDataById($this->slave_db, $this->getQuery('pid'));
+		$available = $project_data['sample'] - $partner_data['sample'];
+		
+		if($params['sample_size'] > $available) {
+			$this->error_msg = "Exceeded usable sample size";
+		}
 
 		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
 
@@ -158,6 +164,13 @@ class Action_SettingPartner extends _Action_Support {
 		$id = $this->getQuery('id');
 		$pid = $this->getQuery('pid');
 
+		$project_data = Logic_Project::getProjectDataById($this->slave_db, $pid);
+		$partner_data = Logic_Partner::getPartnerSampleSizeByProjectId($this->slave_db, $pid);
+
+		if(empty($partner_data['sample'])) {
+			$partner_data['sample'] = 0;
+		}
+
 		$partner = array(
 			'id'			=> '',
 			'name' 			=> '',
@@ -166,13 +179,14 @@ class Action_SettingPartner extends _Action_Support {
 			'screenout_url' => '',
 			'quotafull_url' => '',
 			'sample_size' 	=> '0',
-			'hits_limit' => '0',
+			'hits_limit' 	=> '0',
 			'link_id' 		=> '',
+			'hits_comment'  => 'Available sample size is '.$partner_data['sample'].'/'.$project_data['sample'],
 			'pid' 			=> $pid,
 		);
 
 		if(!empty($id)) {
-			$partner = Logic_Partner::getPartnerDataById($this->slave_db, $id);	
+			$partner = Logic_Partner::getPartnerDataById($this->slave_db, $id);
 		}
 
 		$project_data = Logic_Project::getProjectDataMap($this->slave_db);
@@ -185,7 +199,7 @@ class Action_SettingPartner extends _Action_Support {
 		$this->output->setTmpl('support/_setting_partner_viewer.php');
 	}
 
-	private function control(){
+	private function toggle(){
 		$id = $this->getQuery('id');
 		$status = $this->getQuery('status');
 
@@ -230,7 +244,8 @@ class Action_SettingPartner extends _Action_Support {
 
 			$statdata = array(
 				'pid' => $data['pid'],
-				'link_id' => $data['link_id']
+				'link_id' => $data['link_id'],
+				'partner_id' => $data['partner_id']
 			);
 
 			Logic_Stat::insertStatData($this->master_db, $statdata);
@@ -247,8 +262,6 @@ class Action_SettingPartner extends _Action_Support {
 
 		$snapshot = Logic_Snapshot::getSnapshotDataByPartnerId($this->slave_db, $id);
 		
-		LogManager::debug($snapshot);
-
 		$surveylink = Env::SURVEY_URL;
 		$joinin_url = str_replace('{accesskey}', $snapshot['accesskey'], $surveylink);
 
@@ -263,8 +276,6 @@ class Action_SettingPartner extends _Action_Support {
 			'screenout_url' => $screenout_url,
 			'quotafull_url' => $quotafull_url
 		);
-
-		LogManager::debug($data);
 
 		$this->sendJsonResult($data);
 	}

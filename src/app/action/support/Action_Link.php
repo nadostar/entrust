@@ -10,8 +10,6 @@ class Action_Link extends _Action_Support {
 
 	private $action = null;
 
-	private $export_file = "entrust_link_{date}.csv";
-
 	protected function initialize() {
 		parent::initialize();
 
@@ -34,8 +32,6 @@ class Action_Link extends _Action_Support {
 			$this->registValidatorMap('type',		'Validator_Input', 'Link type is required.');
 			$this->registValidatorMap('url');	
 			$this->registValidatorMap('attachment');
-
-			$this->registValidatorMap('download_id');
 		}
 
 		try {
@@ -58,11 +54,8 @@ class Action_Link extends _Action_Support {
 			case 'viewer':
 				$this->viewer();
 				break;
-			case 'accesskey':
-				$this->accesskey();
-				break;
-			case 'download':
-				$this->download();
+			case 'usefulLinks':
+				$this->usefulLinks();
 				break;
 			default:
 				$target = array(
@@ -100,8 +93,6 @@ class Action_Link extends _Action_Support {
 			'search' => $pid
 		);
 		
-		LogManager::debug($pager->output($params));
-
 		$this->output->assign('pager', $pager->output($params));
 
 		$this->output->setTmpl('support/_link_list.php');
@@ -140,13 +131,14 @@ class Action_Link extends _Action_Support {
 			if(empty($id)) {
 				$result = Logic_Link::insertLinkData($this->master_db, $params);
 			} else {
-				$params['id'] = $id;
+				unset($params['id']);	// remove id
 				$result = Logic_Link::updateLinkData($this->master_db, $params);
-
+				$params['id'] = $id;
 			}
 
 			$useful_link_data = array(
-				'link_id' => $params['id']
+				'link_id' => $params['id'],
+				'link_no' => 0,  // this is single type
 			);
 
 			if($params['type'] == 0) {
@@ -166,12 +158,32 @@ class Action_Link extends _Action_Support {
 				$useful_link_data['url'] = $url_array;
 			}
 
-			LogManager::debug($useful_link_data);
+			// Gets useful link max no  (multi type)
+			$max_link_no = Logic_Link::getUsefulLinkMaxNo($this->slave_db, $params['id']);
 
-			if(Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data)) {
-				LogManager::debug("ok");
+			if(!empty($max_link_no['no'])) {
+				$useful_link_data['link_no'] = $max_link_no['no'];
+			}
+
+			// single 의 경우 데이터 수정 처리;
+			// multi 의 경우 신규 데이터 처리;
+			if($params['type'] == 0) {
+				if(!empty($id)) {
+					if(!Logic_Link::updateSingleUsefulLinkData($this->master_db, $useful_link_data['link_id'], 1, $useful_link_data['url'][0])) {
+						$result_map['status'] = false;
+						$result_map['message'] = 'transaction fail!';
+					}
+				} else {
+					if(!Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data)) {
+						$result_map['status'] = false;
+						$result_map['message'] = 'transaction fail!';
+					}
+				}
 			} else {
-				LogManager::debug("no");
+				if(!Logic_Link::insertUsefulLinkData($this->master_db, $useful_link_data)) {
+					$result_map['status'] = false;
+					$result_map['message'] = 'transaction fail!';
+				}
 			}
 		}
 
@@ -192,6 +204,11 @@ class Action_Link extends _Action_Support {
 
 		if(!empty($id)) {
 			$link = Logic_Link::getLinkDataById($this->slave_db, $id);
+
+			if($link['type'] == 0) {
+				$usefuldata = Logic_Link::getSingleLinkData($this->slave_db, $id);
+				$link['url'] = $usefuldata['url'];
+			}
 		}
 
 		$project_data = Logic_Project::getProjectDataMap($this->slave_db);
@@ -202,48 +219,29 @@ class Action_Link extends _Action_Support {
 		$this->output->setTmpl('support/_link_viewer.php');
 	}
 
-	private function accesskey() {
+	private function usefulLinks() {
 		$id = $this->getQuery('id');
-		$pid = null;
-		$link_id = null;
 
-		$data = Logic_Link::getLinkDataArrayById($this->slave_db, $id);
+		$page = $this->getQuery('page');
+		empty($page) ? $page = 1 : '';
 
-		$params = array();
-		foreach ($data as $row) {
-			$accesskey = Util_GenerateId::generateId(16);
-			$params[] = array(
-				'accesskey' => $accesskey,
-				'pid' => $row['pid'],
-				'link_id' => $row['id'],
-				'link_key' => $row['k']
-			);
+		$pager = new SimplePager($page, Env::PAGE_LIST);
 
-			$pid = $row['pid'];
-			$link_id = $row['id'];
-		}
+		$data = Logic_Link::getMultiLinkDataLimited($this->slave_db, $id, $pager->limit(), $pager->offset());
 
-		$result_map = array('status' => true, 'message' => 'Generate accesskey success!');
+		$this->output->assign('data', $data['list']);
+		$pager->setPager($data['count'], self::PAGER_ARM_LENGTH);
 
-		if(Logic_AccessKeys::insertAccessKeysData($this->master_db, $params)) {
-			//Logic_Project::changeProjectStatus($this->master_db, $pid, 1);
+		$params = array(
+			'id' => $id
+		);
 
-			$statdata = array(
-				'pid' => $pid,
-				'link_id' => $link_id
-			);
+		$this->output->assign('pager', $pager->output($params));
 
-			Logic_Stat::insertStatData($this->master_db, $statdata);
-
-			//Logic_Log::adminlog($this->log_db, $this->login_session->getAdminId(), Category::ACCESSKEY_GENERATE, $params, $this->ip_address);
-		} else {
-			$result_map['status'] = false;
-			$result_map['message'] = 'transaction fail!';		
-		}
-		
-		$this->sendJsonResult($result_map);
+		$this->output->setTmpl('support/_link_usefullink_viewer.php');
 	}
 
+	/*
 	private function download() {
 		$this->output = new Output_CSV();
 		set_time_limit(0);
@@ -265,4 +263,5 @@ class Action_Link extends _Action_Support {
 			$this->output->assignRow($tmp['url']);
 		}
 	}
+	*/
 }

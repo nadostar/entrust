@@ -4,25 +4,26 @@
 * 
 */
 class Category {
-	const LOGIN = "LOGIN";
+	const LOGIN = "000";
 
-	const ADMIN_NEW = "New Admin";
-	const ADMIN_CHANGE = "Change Admin";
-	const ADMIN_INIT_PASSWORD = "Init Admin Password";
+	const ADMIN_NEW = "010";
+	const ADMIN_CHANGE = "011";
+	const ADMIN_REMOVE = "012";
+	const ADMIN_INIT_PASSWORD = "013";
+	CONST PASSWORD_CHANGE = "014";
 
-	const PERMISSION_NEW = "New Permission";
-	const PERMISSION_CHANGE = "Change Permission";
+	const PERMISSION_NEW = "020";
+	const PERMISSION_CHANGE = "021";
+	const PREMISSION_REMOVE = "022";
 
-	const PROJECT_NEW = "New Project";
-	const PROJECT_CHANGE = "Change Project";
+	const PROJECT_NEW = "030";
+	const PROJECT_CHANGE = "031";
+	const PROJECT_REMOVE = "032";
 
-	const LINK_NEW = "New Link";
-	const LINK_CHANGE = "Change Link";
+	const LINK_NEW = "040";
+	const LINK_CHANGE = "041";
 
-	const PARTNER_NEW = "New Partner";
-	const PARTNER_CHANGE = "Change Partner";
-
-	const ACCESSKEY_GENERATE = "Generate AccessKey";
-	const DOWNLOAD_LINK = "Download links";
-	
+	const PARTNER_NEW = "051";
+	const PARTNER_CHANGE = "052";
+	const GENERATE_ACCESSKEY = "053";
 }

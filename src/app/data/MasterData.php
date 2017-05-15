@@ -158,10 +158,10 @@ class MasterData {
 		
 		'040' => 'Link added',
 		'041' => 'Link changed',
-		'042' => 'Generate accesskey',
-
+		
 		'051' => 'Partner added',
 		'052' => 'Partner changed',
+		'043' => 'Generate accesskey',
 	);
 
 	public static function getAdminLogCategoryMap(){
