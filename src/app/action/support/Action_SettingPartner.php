@@ -171,6 +171,10 @@ class Action_SettingPartner extends _Action_Support {
 			$partner_data['sample'] = 0;
 		}
 
+		if(!empty($id)) {
+			$partner = Logic_Partner::getPartnerDataById($this->slave_db, $id);
+		}
+
 		$partner = array(
 			'id'			=> '',
 			'name' 			=> '',
@@ -184,10 +188,6 @@ class Action_SettingPartner extends _Action_Support {
 			'hits_comment'  => 'Available sample size is '.$partner_data['sample'].'/'.$project_data['sample'],
 			'pid' 			=> $pid,
 		);
-
-		if(!empty($id)) {
-			$partner = Logic_Partner::getPartnerDataById($this->slave_db, $id);
-		}
 
 		$project_data = Logic_Project::getProjectDataMap($this->slave_db);
 		$link_data = Logic_Link::getLinkDataByProjectId($this->slave_db, $pid);
