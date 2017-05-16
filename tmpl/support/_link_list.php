@@ -13,7 +13,7 @@
             <thead>
             <tr>
                 <th>Project</th>
-                <th>#</th>
+                <th>Link Id</th>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Date</th>

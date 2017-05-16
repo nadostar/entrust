@@ -26,7 +26,6 @@ class Action_Analytics extends _Action_Support {
 			$this->registValidatorMap('id');
 
 			$this->registValidatorMap('pid');
-			$this->registValidatorMap('link_id');
 		}
 
 		try {
@@ -38,8 +37,6 @@ class Action_Analytics extends _Action_Support {
 	}
 
 	protected function doAction() {
-		LogManager::debug($this->action);
-
 		switch ($this->action) {
 			case 'search':
 				$this->search();
@@ -72,7 +69,7 @@ class Action_Analytics extends _Action_Support {
 
 		$pager = new SimplePager($page, Env::PAGE_LIST);
 
-		$data = Logic_Analytics::getProjectData($this->slave_db, $pager->limit(), $pager->offset());
+		$data = Logic_Analytics::getMainAnalyticsData($this->slave_db, $pager->limit(), $pager->offset());
 
 		$this->output->assign('data', $data['list']);
 
@@ -90,7 +87,7 @@ class Action_Analytics extends _Action_Support {
 		
 		$project = Logic_Project::getProjectDataById($this->slave_db, $id);
 
-		$partner = Logic_Analytics::getPartnerData($this->slave_db, $id);
+		$partner = Logic_Analytics::getSubAnalyticsData($this->slave_db, $id);
 
 		//$history = Logic_Analytics::getLinkHistoryDataByAccesskey($this->slave_db, '', '', '');
 
@@ -110,21 +107,19 @@ class Action_Analytics extends _Action_Support {
 	
 	private function blocklog() {
 		$pid = $this->getQuery('pid');
-		$link_id = $this->getQuery('link_id');
 
 		$page = $this->getQuery('page');
 		empty($page) ? $page = 1 : '';
 
 		$pager = new SimplePager($page, Env::PAGE_LIST);
 
-		$data = Logic_Analytics::getBlockDataByAccesskey($this->slave_db, $pid, $link_id, $pager->limit(), $pager->offset());
+		$data = Logic_Analytics::getBlockDataByProjectId($this->slave_db, $pid, $pager->limit(), $pager->offset());
 
 		$this->output->assign('data', $data['list']);
 		$pager->setPager($data['count'], self::PAGER_ARM_LENGTH);
 
 		$params = array(
 			'pid' => $pid,
-			'link_id' => $link_id
 		);
 
 		LogManager::debug($pager->output($params));
@@ -134,22 +129,20 @@ class Action_Analytics extends _Action_Support {
 	}
 
 	private function historylog() {
-		$pid = $this->getQuery('pid');
-		$link_id = $this->getQuery('link_id');
+		$id = $this->getQuery('id');
 
 		$page = $this->getQuery('page');
 		empty($page) ? $page = 1 : '';
 
 		$pager = new SimplePager($page, Env::PAGE_LIST);
 
-		$data = Logic_Analytics::getLinkHistoryDataByAccesskey($this->slave_db, $pid, $link_id, $pager->limit(), $pager->offset());
+		$data = Logic_Analytics::getHistoryDataByPartnerId($this->slave_db, $id, $pager->limit(), $pager->offset());
 
 		$this->output->assign('data', $data['list']);
 		$pager->setPager($data['count'], self::PAGER_ARM_LENGTH);
 
 		$params = array(
-			'pid' => $pid,
-			'link_id' => $link_id
+			'id' => $id
 		);
 
 		LogManager::debug($pager->output($params));

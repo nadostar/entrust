@@ -131,7 +131,6 @@ abstract class _Action {
      * 에러 로그
      */
     protected function error($var, $key=null) {
-
         LogManager::error($var, $key);
     }
 

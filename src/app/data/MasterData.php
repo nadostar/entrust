@@ -117,7 +117,7 @@ class MasterData {
 	);
 
 	private static $partner_status_control_map = array(
-		0 => '<i class="fa fa-toggle-off"></i> Closed',
+		0 => '<i class="fa fa-toggle-off"></i> Close',
 		1 => '<i class="fa fa-toggle-on"></i> Active',
 	);
 
@@ -130,7 +130,7 @@ class MasterData {
 	}
 
 	private static $accesslog_category_map = array(
-		0 => 'Join In',
+		0 => 'Survey',
 		1 => 'Complate',
 		2 => 'Screenout',
 		3 => 'Quotafull',

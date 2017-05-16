@@ -112,7 +112,7 @@ class Action_Project extends _Action_Support {
 						$ir_q = 0;
 					}
 
-					$data['list'][$idx]['ir_q'] = $ir_q;
+					$data['list'][$idx]['ir_q'] = sprintf("%.2f", $ir_q); 
 				} else {
 					$data['list'][$idx]['c'] = 0;
 					$data['list'][$idx]['s'] = 0;
@@ -178,6 +178,20 @@ class Action_Project extends _Action_Support {
 
 				$params['id'] = $id;
 				$result = Logic_Project::updateProjectData($this->master_db, $params);
+
+				$data = Logic_Snapshot::getSnapshotDataByProjectId($this->slave_db, $id);
+				
+				if(!empty($data)) {
+					foreach ($data as $idx => $row) {
+						$extra = json_decode($row['extra'], true);
+						$extra['project']['sample'] 	= $params['sample'];
+						$extra['project']['start_at'] 	= $params['start_at'];
+						$extra['project']['end_at']	 	= $params['end_at'];
+						$extra['project']['ip_access'] 	= $params['ip_access'];
+
+						Logic_Snapshot::updateSnapshotExtra($this->master_db, $row['accesskey'], $extra);
+					}
+				}
 			}
 
 			if($result) {
@@ -237,7 +251,18 @@ class Action_Project extends _Action_Support {
 
 		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
 
-		if(!Logic_Project::changeProjectStatus($this->master_db, $id, $status)) {
+		if(Logic_Project::changeProjectStatus($this->master_db, $id, $status)) {
+			$data = Logic_Snapshot::getSnapshotDataByProjectId($this->slave_db, $id);
+			
+			if(!empty($data)) {
+				foreach ($data as $idx => $row) {
+					$extra = json_decode($row['extra'], true);
+					$extra['project']['status'] = $status;
+
+					Logic_Snapshot::updateSnapshotExtra($this->master_db, $row['accesskey'], $extra);
+				}
+			}
+		} else {
 			$result_map['status'] = false;
 			$result_map['message'] = 'transaction fail!';
 		}

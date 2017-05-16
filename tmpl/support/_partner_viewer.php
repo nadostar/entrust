@@ -92,7 +92,6 @@
                     <div class="col-sm-2">
                         <input type="text" name="sample_size" class="form-control" value="<?php es($partner['sample_size']);?>" placeholder="0"> 
                     </div>
-                    <label id="hits_comment" class="control-label"><?php es($partner['hits_comment']);?></label>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Hits limit *</label>
@@ -145,12 +144,6 @@ $(function(){
                     })
                 );
             }
-
-            var hits = JSON.parse(response).hits;
-            
-            console.log("Available sample size is " + hits['used_sample_size'] + "/" + hits['max_sample_size']);
-
-            $('#hits_comment').html("Available sample size is " + hits['used_sample_size'] + "/" + hits['max_sample_size']);
 
         }).fail(function(response, status, err){
             console.log(response, status, err);

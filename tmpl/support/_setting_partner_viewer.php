@@ -91,7 +91,6 @@
                     <div class="col-sm-2">
                         <input type="text" name="sample_size" class="form-control" value="<?php es($partner['sample_size']);?>" placeholder="0"> 
                     </div>
-                    <label class="control-label"><?php es($partner['hits_comment']);?></label>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Hits limit *</label>

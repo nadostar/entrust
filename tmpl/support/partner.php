@@ -273,7 +273,7 @@ $(function(){
                         swal("Success!", result.message, "success");
 
                         $button.toggle();
-                        $('#survey-link').toggle();
+                        $('#survey-link_' + id).toggle();
                         
                     } else {
                         toastr.error(result.message);

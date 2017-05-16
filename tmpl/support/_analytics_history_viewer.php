@@ -16,7 +16,8 @@
     		<table class="table table-striped">
     		<thead>
     			<tr>
-    				<td>AccessKey</td>
+    				<td>AccessId</td>
+                    <td>AccessKey</td>
     				<td>UID</td>
     				<td>Progress</td>
     				<td>Date</td>
@@ -24,6 +25,7 @@
 	            <?php if(!empty($data)): ?>
 	            <?php foreach ($data as $idx => $row): ?>
 	            <tr>
+                    <td><?php es($row['accessid']); ?></td>
 	            	<td><?php es($row['accesskey']); ?></td>
 	                <td><?php es($row['uid']); ?></td>
                     <td><?php echo MasterData::getProgress($row['progress']); ?></td>
@@ -32,7 +34,7 @@
 	            <?php endforeach; ?>
 	        	<?php endif; ?>
     			<tr>
-    				<td colspan="4">
+    				<td colspan="5">
                         <div class="btn-group pull-right">
                             <button class="history-page-prev btn btn-white btn-sm" data-params="<?php es($pager['prev']); ?>" <?php if(!$pager['prev']) es("disabled");?>><i class="fa fa-arrow-left"></i></button>
                             <button class="history-page-next btn btn-white btn-sm" data-params="<?php es($pager['next']); ?>" <?php if(!$pager['next']) es("disabled");?>><i class="fa fa-arrow-right"></i></button>

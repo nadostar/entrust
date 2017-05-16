@@ -79,18 +79,16 @@ CREATE TABLE IF NOT EXISTS `useful_link` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- link_history ver 2.0
-CREATE TABLE IF NOT EXISTS `link_history` (
-	`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `history` (
+	`accessid` varchar(64) NOT NULL,
 	`accesskey` varchar(16) NOT NULL,
-	`uid` varchar(32) NOT NULL,
+	`uid` varchar(64) NOT NULL,
 	`url` varchar(255),
-	`progress` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: Join In, 1: Complate, 2: Screenout, 3: Quotafull',
+	`progress` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: Survey, 1: Complate, 2: Screenout, 3: Quotafull',
 	`disable` tinyint(1) NOT NULL DEFAULT 0,
 	`created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (`id`),
-	KEY `idx_link_history_accesskey` (`accesskey`),
-	KEY `idx_link_history_uid` (`uid`),
-	KEY `idx_link_history_progress` (`progress`)
+	PRIMARY KEY (`accessid`),
+	KEY `idx_history_accesskey` (`accesskey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- partner
@@ -119,9 +117,11 @@ CREATE TABLE IF NOT EXISTS `snapshot` (
 	`pid` varchar(8) NOT NULL,
 	`link_id` varchar(8) NOT NULL,
 	`partner_id` varchar(8) NOT NULL,
-	PRIMARY KEY (`accesskey`, `partner_id`),
+	`extra` text NOT NULL,
+	PRIMARY KEY (`accesskey`),
 	KEY `idx_snapshot_pid` (`pid`),
-	KEY `idx_snapshot_link_id` (`link_id`)
+	KEY `idx_snapshot_link_id` (`link_id`),
+	KEY `idx_snapshot_partner_id` (`partner_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- stat

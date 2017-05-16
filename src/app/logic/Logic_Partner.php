@@ -10,7 +10,8 @@ class Logic_Partner extends _Logic_App {
 		$sql = "SELECT partner.*,
 				(SELECT `name` FROM `link` WHERE `id` = `link_id`) AS `link_name`,
 				(SELECT `name` FROM `project` WHERE `id` = `pid`) AS `project_name`,
-				(SELECT COUNT(1) FROM `snapshot` WHERE `partner_id` = `id`) AS 'found'
+				(SELECT COUNT(1) FROM `snapshot` WHERE `partner_id` = `id`) AS 'found',
+				(SELECT COUNT(1) FROM `history` WHERE `accesskey` = (SELECT `accesskey` FROM `snapshot` WHERE `partner_id` = `id`)) AS 'hits'
 				FROM `partner`
 				WHERE `pid` = ?";
 
@@ -24,20 +25,17 @@ class Logic_Partner extends _Logic_App {
 	}
 
 	public static function getPartnerDataById(_DatabaseAccess $dao, $id) {
-		$sql = "SELECT `a`.*,
-						(SELECT SUM(`sample_size`) FROM `partner` WHERE `partner`.`pid` = `a`.`pid`) AS `used_sample_size`
-				FROM `partner` a
-				WHERE `a`.`id` = ?";
+		$sql = "SELECT * FROM `partner` WHERE `id` = ?";
 
 		$param = array($id);
 
 		return $dao->selectOne($sql, $param);
 	}
 
-	public static function getPartnerSampleSizeByProjectId(_DatabaseAccess $dao, $project_id) {
-		$sql = "SELECT SUM(`sample_size`) AS `sample` FROM `partner` WHERE `pid` = ?";
+	public static function getHistoryCountByAccesskey(_DatabaseAccess $dao, $accesskey) {
+		$sql = "SELECT COUNT(1) AS `found` FROM `history` WHERE `accesskey` = ?";
 
-		$param = array($project_id);
+		$param = array($accesskey);
 
 		return $dao->selectOne($sql, $param);
 	}

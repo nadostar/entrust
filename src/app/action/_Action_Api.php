@@ -23,10 +23,7 @@ abstract class _Action_Api extends _Action {
 	 * @see _Action::initialize()
 	 */
 	protected function initialize() {
-		LogManager::debug("_Action_API");
-		
 		$this->trace(__METHOD__);
-		Util_Session::start();
 		parent::initialize();
 		$this->ip_address = $_SERVER['REMOTE_ADDR'];
 	}

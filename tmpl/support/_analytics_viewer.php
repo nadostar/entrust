@@ -19,32 +19,31 @@
                 	<div class="table-responsive">
                 		<table class="table table-hover">
                 		<thead>
-                			<tr>
+                		<tr>
 			                <th>#</th>
 			                <th>Name</th>
 			                <th>Country</th>
 			                <th>Links</th>
-			                <th>Status</th>
 			                <th>Sample</th>
-			                <th>Join in</th>
+			                <th>Hits</th>
 			                <th>C</th>
 			                <th>S</th>
 			                <th>Q</th>
 			                <th>IR</th>
+			                <th>Status</th>
 			                <th></th>
-                			</tr>
+                		</tr>
                 		</thead>
 			            <tbody>
 			            <?php if(!empty($data['partner'])): ?>
 			            <?php foreach ($data['partner'] as $idx => $row): ?>
-			            <tr class="viewer-log read" data-pid="<?php es($row['pid']); ?>" data-linkid="<?php es($row['link_id']); ?>">
+			            <tr class="viewer-log read" data-partnerid="<?php es($row['id']); ?>" data-pid="<?php es($row['pid']); ?>" data-linkid="<?php es($row['link_id']); ?>">
 			                <td><?php es($row['id']); ?></td>
 			                <td><?php es($row['name']);?></td>
-			                <td><?php es($row['country']);?></td>
+			                <td><?php echo MasterData::getCountry($row['country']); ?></td>
 			                <td><?php es($row['link']);?></td>
-			                <td><?php echo MasterData::getStatus($row['status']); ?></td>
 			                <td><?php es($row['sample_size']);?></td>
-			                <td><?php es($row['request_size']);?></td>
+			                <td><?php es($row['hits']);?></td>
 			                <td><?php es($row['c']);?></td>
 			                <td><?php es($row['s']);?></td>
 			                <td><?php es($row['q']);?></td>
@@ -55,6 +54,7 @@
 			                		<?php es($row['IR']); ?>%
 			                	<?php endif; ?>
 			                </td>
+			                <td><?php echo MasterData::getStatus($row['status']); ?></td>
 			                <td>
 			                	<button type="button" class="export btn btn-primary btn-xs" data-id="<?php es($row['id']); ?>"><i class="fa fa-share"></i> Export</button>
 			                </td>
@@ -72,9 +72,14 @@
 			</div>
 		</div>
 	</div>
-
+	<!--
 	<div class="row">
 		<div id="ip-viewer" class="col-lg-6"></div>
 		<div id="history-viewer" class="col-lg-6"></div>
 	</div>
+	-->
 </div>
+
+<div id="history-viewer" class="col-lg-12"></div>
+<div id="ip-viewer" class="col-lg-12"></div>
+

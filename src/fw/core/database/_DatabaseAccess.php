@@ -113,7 +113,7 @@ class _DatabaseAccess {
         throw new Exception_Database('except select query send to slave:'.$query);
       }
     }
-    LogManager::trace($query);
+    
     $this->result_set = $this->con->query($query);
     if (!$this->result_set) {
       throw new Exception_Database($this->getLastErrorNumber() . ': ' . $this->getLastErrorString());
@@ -285,7 +285,7 @@ class _DatabaseAccess {
       $v .= ")";
     }
     $query = "INSERT INTO $table ($c) VALUES $v";
-    LogManager::debug($query);
+    
     $this->prepare($query);
     $this->bindValue($bind_value);
     $this->execute();
@@ -320,7 +320,7 @@ class _DatabaseAccess {
     if ($condition !== '') {
       $query .= " WHERE $condition";
     }
-    LogManager::debug($query);
+
     $this->prepare($query);
     $this->bindValue($bind_value);
     $this->execute();
@@ -340,7 +340,6 @@ class _DatabaseAccess {
     if ($exec_flg) {
       $this->exec_start_transaction = true;
       $this->con->beginTransaction();
-      LogManager::debug("beginTransaction");
     } else {
       $this->ready_start_transaction = true;
     }
@@ -353,7 +352,6 @@ class _DatabaseAccess {
     if ($this->exec_start_transaction) {
       $this->con->rollBack();
       $this->exec_start_transaction = false;
-      LogManager::debug("ROLLBACK");
     }
   }
 
@@ -364,7 +362,6 @@ class _DatabaseAccess {
     if ($this->exec_start_transaction) {
       $this->con->commit();
       $this->exec_start_transaction = false;
-      LogManager::debug("COMMIT");
     }
   }
 
@@ -375,9 +372,7 @@ class _DatabaseAccess {
         $query .= " WHERE $condition";
       }
       $query .= " FOR UPDATE ";
-      
-      LogManager::debug($query);
-      
+            
       $this->prepare($query);
       $this->bindValue($param);
       $this->execute();

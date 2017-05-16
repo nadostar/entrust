@@ -22,16 +22,9 @@ class Logic_LinkHistory extends _Logic_App {
 		return $dao->selectOne($sql, $param);
 	}
 
-	public static function getLinkHisoryTotal(_DatabaseAccess $dao, $accesskey) {
+	public static function getTotalByAccesskey(_DatabaseAccess $dao, $accesskey) {
 		$sql = "SELECT count(`id`) AS 'found' FROM `link_history` WHERE `accesskey` = ?";
 
-		$param = array($accesskey);
-
-		return $dao->selectOne($sql, $param);
-	}
-
-	public static function getLinkHistoryByAccessKey(_DatabaseAccess $dao, $accesskey) {
-		$sql = "SELECT count(`id`) AS `joinin` FROM `link_history` WHERE `accesskey` = ?";
 		$param = array($accesskey);
 
 		return $dao->selectOne($sql, $param);

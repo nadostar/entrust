@@ -4,7 +4,8 @@
 * 
 */
 class Logic_Analytics extends _Logic_App {
-	public static function getMainAnalyticsData(_DatabaseAccess $dao, $limit, $offset) {
+
+	public static function getProjectData(_DatabaseAccess $dao, $limit, $offset) {
 		$ret = array();
 
 		$sql = "SELECT 	`id`,
@@ -15,7 +16,7 @@ class Logic_Analytics extends _Logic_App {
 						`type`,
 						CONCAT(`c`, '/', `sample`) AS `sample`,
 						`free`,
-						`status`,
+						`disable` AS `status`,
 						`c`,
 						`s`,
 						`q`,
@@ -31,22 +32,22 @@ class Logic_Analytics extends _Logic_App {
 				  		   FROM `stat` GROUP BY `pid`) `stat`
 				 WHERE `id` = `pid` LIMIT ? OFFSET ? ";
 
-		$params = array($limit, $offset);
+		$param = array($limit, $offset);
 
-		$ret['list'] = $dao->selectArrayFoundRows($sql, $params);
+		$ret['list'] = $dao->selectArrayFoundRows($sql, $param);
 		$ret['count'] = $dao->getFoundRows();
 
 		return $ret;
 	}
 
-	public static function getSubAnalyticsData(_DatabaseAccess $dao, $project_id) {
+	public static function getPartnerData(_DatabaseAccess $dao, $id) {
 		$sql = "SELECT	`id`,
 						`name`,
 						`country`,
 						(SELECT `name` FROM `link` WHERE `id` = `partner`.`link_id`) AS `link`,
 						`partner`.`status` AS `status`,
 						CONCAT(`complate_count`, '/', `sample_size`) AS `sample_size`,
-						CONCAT((SELECT COUNT(1) FROM `history` WHERE `accesskey` = (SELECT `accesskey` FROM `snapshot` WHERE `partner_id` = `id`)), '/', `hits_limit`) AS `hits`,
+						CONCAT((SELECT COUNT(1) FROM `link_history` WHERE `accesskey` = (SELECT `accesskey` FROM `accesskeys` WHERE `pid` = `stat`.`pid` and `link_id` = `stat`.`link_id`)), '/', `request_limit`) AS `request_size`,
 						`complate_count` AS `c`,
 						`screenout_count` AS `s`,
 						`quotafull_count` AS `q`,
@@ -60,19 +61,26 @@ class Logic_Analytics extends _Logic_App {
 				    AND `partner`.`link_id` = `stat`.`link_id`
 				    AND `stat`.`pid` = ?";
 
-		$params = array($project_id);
+		$param = array($id);
 
-		return $dao->selectArray($sql, $params);
+		return $dao->selectArray($sql, $param);
 	}
 
-	public static function getHistoryDataByPartnerId(_DatabaseAccess $dao, $partner_id, $limit, $offset) {
+	public static function getLinkHistoryDataByAccesskey(_DatabaseAccess $dao, $pid, $link_id, $limit, $offset) {
 		$ret = array();
 		
-		$sql = "SELECT `history`.* FROM `history`, `snapshot`
-				WHERE `history`.`accesskey` = `snapshot`.`accesskey`
-				AND `snapshot`.`partner_id` = ? LIMIT ? OFFSET ?";
+		$sql = "SELECT 	`id`,
+						`accesskey`,
+						`progress`,
+						`uid`,
+						`created_at`
+				  FROM `link_history`, `accesskeys`
+				 WHERE `link_history`.`accesskey` = `accesskeys`.`accesskey`
+				   AND `pid` = ?
+				   AND `link_id` = ?
+				 ORDER BY `id` DESC LIMIT ? OFFSET ?";
 
-		$param = array($partner_id, $limit, $offset);
+		$param = array($pid, $link_id, $limit, $offset);
 
 		$ret['list'] = $dao->selectArrayFoundRows($sql, $param);
 		$ret['count'] = $dao->getFoundRows();
@@ -80,12 +88,21 @@ class Logic_Analytics extends _Logic_App {
 		return $ret;
 	}
 
-	public static function getBlockDataByProjectId(_DatabaseAccess $dao, $pid, $limit, $offset) {
+	public static function getBlockDataByAccesskey(_DatabaseAccess $dao, $pid, $link_id, $limit, $offset) {
 		$ret = array();
 
-		$sql = "SELECT  * FROM  `block` WHERE `pid` = ? ORDER BY `id` DESC LIMIT ? OFFSET ?";
+		$sql = "SELECT  `id`,
+						`accesskey`,
+						`ip_address`,
+						`data`,
+						`created_at`
+				  FROM  `block`, `accesskeys`
+				 WHERE  `block`.`accesskey` = `accesskeys`.`accesskey`
+				   AND  `pid` = ?
+				   AND  `link_id` = ?
+				 ORDER BY `id` DESC LIMIT ? OFFSET ?";
 
-		$param = array($pid, $limit, $offset);
+		$param = array($pid, $link_id, $limit, $offset);
 		
 		$ret['list'] = $dao->selectArrayFoundRows($sql, $param);
 		$ret['count'] = $dao->getFoundRows();

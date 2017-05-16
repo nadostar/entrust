@@ -13,12 +13,16 @@
             <thead>
             <tr>
                 <th>Project</th>
-                <th>#</th>
+                <th>Partner No</th>
                 <th>Name</th>
                 <th>Country</th>
                 <th>Related Link</th>
-                <th>Max Sample</th>
-                <th>Max Hits</th>
+                <th>Sample</th>
+                <th>Hits</th>
+                <th>C</th>
+                <th>S</th>
+                <th>Q</th>
+                <th>IR</th>
                 <th>Status</th>
                 <th>Date</th>
                 <th></th>
@@ -34,19 +38,23 @@
                 <td><?php echo MasterData::getCountry($row['country']); ?></td>
                 <td><?php es($row['link_name']);?></td>
                 <td><?php es($row['sample_size']);?></td>
-                <td><?php es($row['hits_limit']);?></td>
+                <td><?php es($row['hits']);?>/<?php es($row['hits_limit']);?></td>
+                <td><?php es($row['c']);?></td>
+                <td><?php es($row['s']);?></td>
+                <td><?php es($row['q']);?></td>
+                <td><?php es($row['ir_q']);?>%</td>
                 <td><?php echo MasterData::getStatus($row['status']); ?></td>
                 <td><?php es($row['updated_at']);?></td>
                 <td>
                     <button type="button" class="accesskey btn btn-warning btn-xs" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] > 0) es("display: none;"); ?>""><i class="fa fa-retweet"></i> AccessKey</button>
-                    <button type="button" class="survey-link btn btn-warning btn-xs" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] == 0) es("display: none;"); ?>""><i class="fa fa-send"></i> Survey Links</button>
+                    <button id="survey-link_<?php es($row['id']); ?>" type="button" class="survey-link btn btn-warning btn-xs" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] == 0) es("display: none;"); ?>""><i class="fa fa-send"></i> Survey Links</button>
                     <button type="button" class="setting-toggle btn btn-plain btn-xs" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getPartnerStatusControl($row['status']); ?></button>
                 </td>
             </tr>
             <?php endforeach; ?>
             <?php else: ?>
             <tr>
-                <td colspan="10" class="text-center">No found data.</td>
+                <td colspan="14" class="text-center">No found data.</td>
             </tr>
             <?php endif; ?>
             </tbody>

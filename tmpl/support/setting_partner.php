@@ -45,7 +45,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">For Join In: </label>
+                            <label class="col-sm-2 control-label">Survey Link: </label>
                             <div id="joinin_url"></div>
                         </div>
                         <div class="hr-line-dashed"></div>
@@ -246,7 +246,7 @@ $(function(){
                         swal("Success!", result.message, "success");
 
                         $button.toggle();
-                        $('#survey-link').toggle();
+                        $('#survey-link_' + id).toggle();
                         
                     } else {
                         toastr.error(result.message);

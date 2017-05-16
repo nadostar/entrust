@@ -56,10 +56,7 @@ $(function(){
                 'id': id
             };
 
-            console.log(urls['viewer'], params);
-
             $('#viewer').load(urls['viewer'], params, function(response, status, err){
-                console.log('loaded', status);
 
                 if(status == 'error') {
                     toastr.error(response, status);
@@ -79,14 +76,10 @@ $(function(){
         .on('click', "tr.viewer-log", function(){
             var $button = $(this);
             var pid = $button.data('pid');
-            var link_id = $button.data('linkid');
 
             params = {
-                'pid': pid,
-                'link_id': link_id
+                'pid': pid
             };
-
-            console.log(urls['blocklog'], params);
 
             $('#ip-viewer').load(urls['blocklog'], params, function(response, status, err){
                 console.log('loaded', status);
@@ -108,15 +101,11 @@ $(function(){
         })
         .on('click', "tr.viewer-log", function(){
             var $button = $(this);
-            var pid = $button.data('pid');
-            var link_id = $button.data('linkid');
+            var id = $button.data('partnerid');
 
             params = {
-                'pid': pid,
-                'link_id': link_id
+                'id': id
             };
-
-            console.log(urls['historylog'], params);
 
             $('#history-viewer').load(urls['historylog'], params, function(response, status, err){
                 console.log('loaded', status);

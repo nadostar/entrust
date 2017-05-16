@@ -99,33 +99,6 @@ class Logic_Link extends _Logic_App {
 		return true;
 	}
 
-	public static function findUsefulLink(_DatabaseAccess $dao, $accesskey, $link_id) {
-		$sql = "SELECT `useful_link`.`link_id`, `link_no`, `url`, `link`.`type` AS `link_type` FROM `useful_link` 
-				LEFT JOIN `snapshot` ON `useful_link`.`link_id` = `snapshot`.`link_id`
-				LEFT JOIN `link` ON `useful_link`.`link_id` = `link`.`id`
-				WHERE `useful_link`.`link_id` = ?
-				AND `snapshot`.`accesskey` = ?
-				AND `useful` = 0 LIMIT 5";
-
-		$param = array($link_id, $accesskey);
-
-		return $dao->selectArray($sql, $param);
-	}
-
-	public static function alreadyUseLink(_DatabaseAccess $dao, $link_id, $link_no) {
-		try {
-			$condition = "link_id = ? AND link_no = ?";
-			$condition_param = array($link_id, $link_no);
-
-			$dao->update('useful_link', array('useful' => 1), $condition, $condition_param);
-		} catch (Exception $e) {
-			LogManager::error($e->getMessage());
-			return false;
-		}
-
-		return true;
-	}
-
 	public static function getMultiLinkDataLimited(_DatabaseAccess $dao, $link_id, $limit, $offset) {
 		$ret = array();
 
