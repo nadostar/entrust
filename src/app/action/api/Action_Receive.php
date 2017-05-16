@@ -56,36 +56,36 @@ class Action_Receive extends _Action_Api {
 
 	protected function validateParameters($secret, $status) {
 		if(empty($secret)) {
-			LogManager::debug("[ERROR] code=55560, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=55560");
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		$accesskey = substr($secret, 0, Env::ACCESSKEY_SIZE);
 		if(empty($accesskey)) {
-			LogManager::debug("[ERROR] code=45560, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45560");
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		if(strlen($accesskey) != Env::ACCESSKEY_SIZE) {
-			LogManager::debug("[ERROR] code=45561, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45561");
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		$esid = substr($secret, Env::ACCESSKEY_SIZE);
 		if(empty($esid)) {
-			LogManager::debug("[ERROR] code=45562, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45562");
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		if(empty($status)) {
-			LogManager::debug("[ERROR] code=45563, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45563");
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 		
 		try {
 			$this->receive_status_map[$status];
 		} catch(Exception $e) {
-			LogManager::debug("[ERROR] code=45564, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45564");
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 	}

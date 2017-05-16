@@ -17,8 +17,8 @@ class Action_Error extends _Action_Api {
 
 	protected function doAction() {
 		$data = array(
-			"code" => "404",
-			"title" => "Page Not Found",
+			"code" => "403",
+			"title" => "Opps!",
 			"message" => "Sorry, but the page you are looking for has note been found. Try checking the URL for error, then hit the refresh button on your browser or try found something else in our app."
 		);
 
