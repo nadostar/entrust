@@ -162,7 +162,7 @@ class Action_Survey extends _Action_Api {
 		} else {
 			// jump to page
 			//LogManager::debug("history url is ".$history['url']);
-			$this->jumpToPage($url);
+			$this->jumpToPage($history['url']);
 		}
 	}
 
