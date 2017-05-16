@@ -274,17 +274,17 @@ class Action_SettingPartner extends _Action_Support {
 			
 		$extradata = array(
 			'project' => array(
-				'status' 	=> $project['status'], // 1: active, 2: closed
+				'status' 	=> 1, // 1: active, 2: closed
 				'sample' 	=> $project['sample'],
 				'start_at' 	=> $project['start_at'],
 				'end_at' 	=> $project['end_at'],
 				'ip_access' => $project['ip_access'],
 			),
 			'partner' => array(
-				'status' => 0, // 0: active, 1: closed
-				'sample' => $partner['sample_size'],
-				'hits' => $partner['hits_limit'],
-				'complate_url' => $partner['complate_url'],
+				'status' 		=> 0, // 0: active, 1: closed
+				'sample' 		=> $partner['sample_size'],
+				'hits' 			=> $partner['hits_limit'],
+				'complate_url' 	=> $partner['complate_url'],
 				'screenout_url' => $partner['screenout_url'],
 				'quotafull_url' => $partner['quotafull_url'],
 

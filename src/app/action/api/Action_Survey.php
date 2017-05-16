@@ -119,7 +119,7 @@ class Action_Survey extends _Action_Api {
 				$history_cnt = Logic_Live::getHistoryCountByAccesskey($this->slave_db, $snapshot['accesskey']);
 
 				if($history_cnt['found'] > $partner['hits']) {
-					LogManager::debug("[ERROR] code=73735, params=".json_encode($params));
+					LogManager::debug("[ERROR] code=73734, params=".json_encode($params));
 					$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 				}
 
@@ -136,7 +136,7 @@ class Action_Survey extends _Action_Api {
 			// Gets some useful survey links
 			$usefullink = Logic_Live::findUsefulLinkById($this->slave_db, $snapshot['link_id']);
 			if(count($usefullink) == 0) {
-				LogManager::debug("[ERROR] code=73733, params=".json_encode($params));
+				LogManager::debug("[ERROR] code=73735, params=".json_encode($params));
 				$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 			}
 			

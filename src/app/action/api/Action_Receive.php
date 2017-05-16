@@ -62,30 +62,30 @@ class Action_Receive extends _Action_Api {
 
 		$accesskey = substr($secret, 0, Env::ACCESSKEY_SIZE);
 		if(empty($accesskey)) {
-			LogManager::debug("[ERROR] code=55560, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45560, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		if(strlen($accesskey) != Env::ACCESSKEY_SIZE) {
-			LogManager::debug("[ERROR] code=55560, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45561, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		$esid = substr($secret, Env::ACCESSKEY_SIZE);
 		if(empty($esid)) {
-			LogManager::debug("[ERROR] code=55560, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45562, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
 		if(empty($status)) {
-			LogManager::debug("[ERROR] code=55563, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45563, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 		
 		try {
 			$this->receive_status_map[$status];
 		} catch(Exception $e) {
-			LogManager::debug("[ERROR] code=55563, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=45564, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 	}
@@ -94,7 +94,7 @@ class Action_Receive extends _Action_Api {
 		$history = Logic_Live::findHistoryById($this->slave_db, $params['accessid']);
 
 		if($history === false) {
-			LogManager::debug("[ERROR] code=84728, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=54728, params=".json_encode($params));
 			//$this->errorlog("NONE", "Receive", "84728", "Invalid status value", json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
@@ -106,7 +106,7 @@ class Action_Receive extends _Action_Api {
 		$data = Logic_Live::findSnapshotByAccesskey($this->slave_db, $params['accesskey']);
 
 		if($data === false) {
-			LogManager::debug("[ERROR] code=83729, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=53729, params=".json_encode($params));
 		} else {
 			$data['extra'] = json_decode($data['extra'], true);
 		}
@@ -121,20 +121,20 @@ class Action_Receive extends _Action_Api {
 
 		// 프로젝트 유효성 체크
 		if($project['status'] != 1) {
-			LogManager::debug("[ERROR] code=73731, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=53731, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 		
 		// 파트너 상태 유효성 체크
 		if($partner['status'] == 1) {
-			LogManager::debug("[ERROR] code=73732, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=53732, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 
 		$stat = Logic_Live::findStatisticsById($this->slave_db, $snapshot);
 		
 		if($stat['complate_count'] > $partner['sample']) {
-			LogManager::debug("[ERROR] code=83734, params=".json_encode($params));
+			LogManager::debug("[ERROR] code=53733, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 
@@ -144,7 +144,6 @@ class Action_Receive extends _Action_Api {
 				if(($stat['complate_count'] + 1) >= $partner['sample']) {
 					$extra = $snapshot['extra'];
 					$extra['partner']['status'] = 1;	// 파트너 상태 종료 처리
-					LogManager::debug($extra);
 
 					Logic_Live::changeSnapshotExtra($this->master_db, $snapshot['accesskey'], $extra);
 					Logic_Live::closeStatusOfPartner($this->master_db, $snapshot['partner_id']);

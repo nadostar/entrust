@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `stat` (
 	`partner_id` varchar(8) NOT NULL,
 	`complate_count` int(11) NOT NULL DEFAULT 0,
 	`screenout_count` int(11) NOT NULL DEFAULT 0,
-	`quotafull_count` int(11) NOT NULL DEFAULT 0
+	`quotafull_count` int(11) NOT NULL DEFAULT 0,
 	PRIMARY KEY(`pid`, `link_id`, `partner_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
