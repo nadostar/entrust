@@ -140,7 +140,7 @@ class Action_Receive extends _Action_Api {
 
 		$url = "";
 		switch ($params['status']) {
-			case 'complate':
+			case 'complete':
 				if(($stat['complate_count'] + 1) >= $partner['sample']) {
 					$extra = $snapshot['extra'];
 					$extra['partner']['status'] = 1;	// 파트너 상태 종료 처리
