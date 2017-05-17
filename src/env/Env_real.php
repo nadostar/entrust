@@ -19,7 +19,7 @@ class Env {
     
     const SURVEY_URL = "http://47.91.170.199/api/survey/?r={accesskey}&esid={1}";
     
-    const RECEIVE_URL = "http://47.91.170.199/api/receive/?r={receive}&esid={1}";
+    const RECEIVE_URL = "http://47.91.170.199/api/receive/?rs={receive}&esid={1}";
 
     /** 인증여부 */
     const IS_LOGIN_CHECK = true;

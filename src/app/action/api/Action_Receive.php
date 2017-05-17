@@ -22,7 +22,7 @@ class Action_Receive extends _Action_Api {
 		parent::preAction();
 
 		try {
-			$this->registValidatorMap('r');
+			$this->registValidatorMap('rs');
 			$this->registValidatorMap('esid');
 
 			$this->validParam();
@@ -33,7 +33,7 @@ class Action_Receive extends _Action_Api {
 	}
 
 	protected function doAction() {
-		$status 	= trim($this->getQuery('r'));
+		$status 	= trim($this->getQuery('rs'));
 		$accessid 	= trim($this->getQuery('esid'));
 
 		$secret = base64_decode($accessid);
