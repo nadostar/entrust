@@ -321,7 +321,7 @@ class Action_SettingPartner extends _Action_Support {
 		$joinin_url = str_replace('{accesskey}', $snapshot['accesskey'], $surveylink);
 
 		$receivelink = Env::RECEIVE_URL;
-		$complate_url = str_replace('{receive}', 'complate', $receivelink);
+		$complate_url = str_replace('{receive}', 'complete', $receivelink);
 		$screenout_url = str_replace('{receive}', 'screenout', $receivelink);
 		$quotafull_url = str_replace('{receive}', 'quotafull', $receivelink);
 

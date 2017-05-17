@@ -9,7 +9,7 @@ class Action_Receive extends _Action_Api {
 	protected $error_msg = '';
 
 	protected $receive_status_map = array(
-		'complate' 	=> 1,
+		'complete' 	=> 1,
 		'screenout' => 2,
 		'quotafull' => 3
 	);
