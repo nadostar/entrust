@@ -144,7 +144,7 @@ class Logic_Live extends _Logic_App {
 
 	public static function alreadyUseLink(_DatabaseAccess $dao, $link_id, $link_no) {
 		try {
-			$condition = "";
+			$condition = "`link_id` = ? AND `link_no` = ?";
 			$condition_params = array($link_id, $link_no);
 
 			$dao->update('useful_link', array('useful' => 1), $condition, $condition_params);
