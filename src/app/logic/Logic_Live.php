@@ -20,6 +20,14 @@ class Logic_Live extends _Logic_App {
 		return $dao->selectOne($sql, $params);
 	}
 
+	public static function findSnapshotArrayById(_DatabaseAccess $dao, $project_id) {
+		$sql = "SELECT * FROM `snapshot` WHERE `pid` = ?";
+
+		$params=  array($project_id);
+
+		return $dao->selectArray($sql, $params);
+	}
+
 	public static function findHistoryById(_DatabaseAccess $dao, $accessid) {
 		$sql = "SELECT `accessid`, `url`, `progress` FROM `history` WHERE `accessid` = ?";
 
@@ -29,7 +37,9 @@ class Logic_Live extends _Logic_App {
 	}
 
 	public static function findStatisticsById(_DatabaseAccess $dao, $snapshotObject) {
-		$sql = "SELECT `complate_count`, `screenout_count`, `quotafull_count` FROM `stat` WHERE `pid` = ? AND `link_id` = ? AND `partner_id` = ?";
+		$sql = "SELECT `complate_count`, `screenout_count`, `quotafull_count`, 
+						(SELECT SUM(`complate_count`) FROM `stat` b WHERE `b`.`pid` = `pid`) AS `complate_total`
+					FROM `stat` WHERE `pid` = ? AND `link_id` = ? AND `partner_id` = ?";
 
 		$params = array($snapshotObject['pid'], $snapshotObject['link_id'], $snapshotObject['partner_id']);
 
@@ -162,7 +172,7 @@ class Logic_Live extends _Logic_App {
 			$subsql = "";
 
 			switch ($status) {
-				case 'complate':
+				case 'complete':
 					$subsql = "`complate_count` = `complate_count` + 1";
 					break;
 				case 'screenout':
