@@ -110,8 +110,8 @@ class MasterData {
 	}
 
 	private static $progress_map = array(
-		0 => '<span class="label label-plain">Join In</span>',
-		1 => '<span class="label label-success">Complate</span>',
+		0 => '<span class="label label-plain">Survey</span>',
+		1 => '<span class="label label-success">Complete</span>',
 		2 => '<span class="label label-danger">Screenout</span>',
 		3 => '<span class="label label-warning">Quotafull</span>',
 	);
@@ -131,7 +131,7 @@ class MasterData {
 
 	private static $accesslog_category_map = array(
 		0 => 'Survey',
-		1 => 'Complate',
+		1 => 'Complete',
 		2 => 'Screenout',
 		3 => 'Quotafull',
 	);
