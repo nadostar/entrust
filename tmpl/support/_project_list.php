@@ -22,8 +22,8 @@
                 <th>C</th>
                 <th>S</th>
                 <th>Q</th>
-                <th>IR_A</th>
                 <th>IR_Q</th>
+                <th>IR_A</th>
                 <th>Status</th>
                 <th>Date</th>
                 <th></th>

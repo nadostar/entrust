@@ -22,8 +22,8 @@
                 <th>C</th>
                 <th>S</th>
                 <th>Q</th>
-                <th>IR_A</th>
                 <th>IR_Q</th>
+                <th>IR_A</th>
                 <th>Status</th>
                 <th>Final($)</th>
             </tr>
@@ -42,9 +42,7 @@
                 <td><?php es($row['c']);?></td>
                 <td><?php es($row['s']);?></td>
                 <td><?php es($row['q']);?></td>
-                <td>
-                <?php es($row['IR_A']);?>%
-                </td>
+                <td><?php es($row['IR_A']);?>%</td>
                 <td><?php es($row['IR_Q']);?>%</td>
                 <td><?php echo MasterData::getProjectStatus($row['status']); ?></td>
                 <td>$ <?php es($row['final']);?></td>

@@ -24,6 +24,7 @@ class Action_Receive extends _Action_Api {
 		try {
 			$this->registValidatorMap('rs');
 			$this->registValidatorMap('esid');
+			$this->registValidatorMap('testmode');
 
 			$this->validParam();
 		} catch (Exception $e) {
@@ -35,6 +36,7 @@ class Action_Receive extends _Action_Api {
 	protected function doAction() {
 		$status 	= trim($this->getQuery('rs'));
 		$accessid 	= trim($this->getQuery('esid'));
+		$testmode	= trim($this->getQuery('testmode'));
 
 		$secret = base64_decode($accessid);
 
@@ -48,10 +50,17 @@ class Action_Receive extends _Action_Api {
 			'ip' => $this->ip_address
 		);
 
-		$history = $this->findHistory($params);
-		$snapshot = $this->findAccesskey($params);
+		if('true' == $testmode) {
+			$history = $this->findTest($params);
+			$snapshot = $this->findAccesskey($params);
 
-		$this->logicProc($snapshot, $history, $params);
+			$this->testmodeProc($snapshot, $history, $params);
+		} else {
+			$history = $this->findHistory($params);
+			$snapshot = $this->findAccesskey($params);
+
+			$this->logicProc($snapshot, $history, $params);
+		}
 	}
 
 	protected function validateParameters($secret, $status) {
@@ -88,6 +97,18 @@ class Action_Receive extends _Action_Api {
 			LogManager::debug("[ERROR] code=45564");
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
+	}
+
+	protected function findTest($params) {
+		$history = Logic_Live::findTestById($this->slave_db, $params['accessid']);
+		
+		if($history === false) {
+			LogManager::debug("[ERROR] code=54728, params=".json_encode($params));
+			//$this->errorlog("NONE", "Receive", "84728", "Invalid status value", json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
+
+		return $history;
 	}
 
 	protected function findHistory($params) {
@@ -188,6 +209,44 @@ class Action_Receive extends _Action_Api {
 				Logic_Log::accesslog($this->log_db, $snapshot['accesskey'], $this->receive_status_map[$params['status']], $params, $this->ip_address);
 				
 			}
+		}
+
+		$this->jumpToPage($url);
+	}
+
+	protected function testmodeProc($snapshot, $history, $params) {
+		
+		$project = Logic_Live::findProjectById($this->slave_db, $snapshot['pid']);
+		$partner = $snapshot['extra']['partner'];
+
+		if($project === false) {
+			LogManager::debug("[ERROR] code=53730, params=".json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
+
+		// 프로젝트 유효성 체크
+		if($project['status'] != 1) {
+			LogManager::debug("[ERROR] code=53731, params=".json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
+		
+		// 파트너 상태 유효성 체크
+		if($partner['status'] == 1) {
+			LogManager::debug("[ERROR] code=53732, params=".json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
+
+		$url = "";
+		switch ($params['status']) {
+			case 'complete':
+				$url = $this->makeURL($partner['complate_url'], array($params['esid']));
+				break;
+			case 'screenout':
+				$url = $this->makeURL($partner['screenout_url'], array($params['esid']));
+				break;
+			case 'quotafull':
+				$url = $this->makeURL($partner['quotafull_url'], array($params['esid']));
+				break;
 		}
 
 		$this->jumpToPage($url);

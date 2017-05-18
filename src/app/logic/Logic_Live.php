@@ -36,6 +36,14 @@ class Logic_Live extends _Logic_App {
 		return $dao->selectOne($sql, $params);
 	}
 
+	public static function findTestById(_DatabaseAccess $dao, $accessid) {
+		$sql = "SELECT `accessid`, `url` FROM `test` WHERE `accessid` = ?";
+
+		$params = array($accessid);
+
+		return $dao->selectOne($sql, $params);
+	}
+
 	public static function findStatisticsById(_DatabaseAccess $dao, $snapshotObject) {
 		$sql = "SELECT `complate_count`, `screenout_count`, `quotafull_count`, 
 						(SELECT SUM(`complate_count`) FROM `stat` b WHERE `b`.`pid` = `pid`) AS `complate_total`
@@ -109,6 +117,17 @@ class Logic_Live extends _Logic_App {
 	public static function writeHistory(_DatabaseAccess $dao, $object) {
 		try {
 			$dao->insert('history', $object, false);
+		} catch (Exception $e) {
+			LogManager::error($e->getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+	public static function writeTest(_DatabaseAccess $dao, $object) {
+		try {
+			$dao->insert('test', $object, false);
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
 			return false;

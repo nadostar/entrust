@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS `partner`;
 DROP TABLE IF EXISTS `stat`;
 DROP TABLE IF EXISTS `share`;
 DROP TABLE IF EXISTS `snapshot`;
+DROP TABLE IF EXISTS `test`;
 
 -- project
 CREATE TABLE IF NOT EXISTS `project` (
@@ -143,4 +144,14 @@ CREATE TABLE IF NOT EXISTS `share` (
 	`created_at` datetime NOT NULL,
 	`updated_at` datetime NOT NULL,
 	PRIMARY KEY(`pid`, `admin_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `test` (
+	`accessid` varchar(64) NOT NULL,
+	`accesskey` varchar(16) NOT NULL,
+	`uid` varchar(64) NOT NULL,
+	`url` varchar(1024) NOT NULL,
+	`created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`accessid`),
+	KEY `idx_test_accesskey` (`accesskey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
