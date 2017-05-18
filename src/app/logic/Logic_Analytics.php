@@ -22,7 +22,7 @@ class Logic_Analytics extends _Logic_App {
 						FORMAT((`c` / (`c` + `s`) * 100), 1)  AS `IR_A`,
 						`ir` AS `IR_Q`,
 						`cpi`,
-						FORMAT((`cpi` * (`sample` + `free`)), 2) AS `final`
+						FORMAT((`cpi` * (`c` + `free`)), 2) AS `final`
 				  FROM `project`, 
 				  		(SELECT `pid`, 
 				  				SUM(`complate_count`) AS `c`, 

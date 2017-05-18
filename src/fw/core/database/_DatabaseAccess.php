@@ -286,6 +286,8 @@ class _DatabaseAccess {
     }
     $query = "INSERT INTO $table ($c) VALUES $v";
     
+    LogManager::debug($query);
+
     $this->prepare($query);
     $this->bindValue($bind_value);
     $this->execute();
@@ -320,6 +322,8 @@ class _DatabaseAccess {
     if ($condition !== '') {
       $query .= " WHERE $condition";
     }
+
+    LogManager::debug($query);
 
     $this->prepare($query);
     $this->bindValue($bind_value);

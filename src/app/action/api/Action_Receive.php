@@ -152,20 +152,6 @@ class Action_Receive extends _Action_Api {
 		$url = "";
 		switch ($params['status']) {
 			case 'complete':
-				if($partner['sample'] > 0) {
-					if(($stat['complate_count'] + 1) >= $partner['sample']) {
-						$extra = $snapshot['extra'];
-						$extra['partner']['status'] = 1;	// 파트너 상태 종료 처리
-
-						Logic_Live::changeSnapshotExtra($this->master_db, $snapshot['accesskey'], $extra);
-						Logic_Live::closeStatusOfPartner($this->master_db, $snapshot['partner_id']);
-					}
-				}
-
-				if(($stat['complate_total'] + 1) >= $project['sample']) {
-					Logic_Live::closeStatusOfProject($this->master_db, $snapshot['pid']);
-				}
-
 				$url = $this->makeURL($partner['complate_url'], array($params['esid']));
 				break;
 			case 'screenout':
@@ -177,9 +163,30 @@ class Action_Receive extends _Action_Api {
 		}
 
 		if($history['progress'] == 0) {
+			
 			if(Logic_Live::changeProgressOfLink($this->master_db, $params['accessid'], $this->receive_status_map[$params['status']])) {
 				Logic_Live::statisticsCounting($this->master_db, $params['status'], $snapshot);
+
+				if($params['status'] == 'complete') {
+					if($partner['sample'] > 0) {
+						$diff = intval($partner['sample']) - intval($stat['complate_count'] + 1);
+						if($diff <= 0) {
+							$extra = $snapshot['extra'];
+							$extra['partner']['status'] = 1;	// 파트너 상태 종료 처리
+							
+							Logic_Live::changeSnapshotExtra($this->master_db, $snapshot['accesskey'], $extra);
+							Logic_Live::closeStatusOfPartner($this->master_db, $snapshot['partner_id']);
+						}
+					}
+
+					$diff = intval($project['sample']) - intval($stat['complate_total'] + 1);
+					if($diff <= 0) {
+						Logic_Live::closeStatusOfProject($this->master_db, $snapshot['pid']);
+					}
+				}
+
 				Logic_Log::accesslog($this->log_db, $snapshot['accesskey'], $this->receive_status_map[$params['status']], $params, $this->ip_address);
+				
 			}
 		}
 

@@ -71,19 +71,19 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">For Complate *</label>
                     <div class="col-sm-9">
-                		<input type="text" name="complate" class="form-control" value="<?php es($partner['complate_url']);?>" placeholder="Please insert complate link here.">
+                		<input type="text" name="complate" class="form-control" value="<?php es($partner['complate_url']);?>" placeholder="http://">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">For Screen out *</label>
                     <div class="col-sm-9">
-                        <input type="text" name="screenout" class="form-control" value="<?php es($partner['screenout_url']);?>" placeholder="Please insert screen out link here.">
+                        <input type="text" name="screenout" class="form-control" value="<?php es($partner['screenout_url']);?>" placeholder="http://">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">For Quota full *</label>
                     <div class="col-sm-9">
-                        <input type="text" name="quotafull" class="form-control" value="<?php es($partner['quotafull_url']);?>" placeholder="Please insert quota full link here.">
+                        <input type="text" name="quotafull" class="form-control" value="<?php es($partner['quotafull_url']);?>" placeholder="http://">
                     </div>
                 </div>
                 <div class="hr-line-dashed"></div>

@@ -92,8 +92,8 @@ class MasterData {
 	}
 
 	private static $project_status_control_map = array(
-		1 => '<i class="fa fa-toggle-off"></i> Closed',
-		2 => '<i class="fa fa-toggle-on"></i> Active'
+		1 => '<i class="fa fa-toggle-off"></i>',
+		2 => '<i class="fa fa-toggle-on"></i>'
 	);
 
 	public static function getProjectStatusControl($val) {
@@ -117,8 +117,8 @@ class MasterData {
 	);
 
 	private static $partner_status_control_map = array(
-		0 => '<i class="fa fa-toggle-off"></i> Close',
-		1 => '<i class="fa fa-toggle-on"></i> Active',
+		0 => '<i class="fa fa-toggle-off"></i>',
+		1 => '<i class="fa fa-toggle-on"></i>',
 	);
 
 	public static function getPartnerStatusControl($val) {

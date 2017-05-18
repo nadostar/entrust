@@ -47,10 +47,10 @@
                 <td><?php echo MasterData::getProjectStatus($row['status']); ?></td>
                 <td><?php es($row['updated_at']);?></td>
                 <td>
-                    <button type="button" class="setting-link btn btn-success btn-xs" data-id="<?php es($row['id']); ?>">&nbsp;<i class="fa fa-link"></i>&nbsp;</button>
-                    <button type="button" class="setting-partner btn btn-info btn-xs" data-id="<?php es($row['id']); ?>">&nbsp;<i class="fa fa-users"></i>&nbsp;</button>
+                    <button type="button" class="setting-link btn btn-success btn-circle btn-outline" data-id="<?php es($row['id']); ?>" data-placement="top" title="Links"><i class="fa fa-link"></i></button>
+                    <button type="button" class="setting-partner btn btn-warning btn-circle btn-outline" data-id="<?php es($row['id']); ?>" data-placement="top" title="Partners"><i class="fa fa-users"></i></button>
                     <?php if($row['status'] > 0): ?>
-                    <button type="button" class="setting-toggle btn btn-plain btn-xs" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getProjectStatusControl($row['status']); ?></button>
+                    <button type="button" class="setting-toggle btn btn-primary btn-circle btn-outline" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getProjectStatusControl($row['status']); ?></button>
                     <?php endif; ?>
                 </td>
             </tr>

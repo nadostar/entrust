@@ -273,6 +273,7 @@ class Action_SettingPartner extends _Action_Support {
 		$project = Logic_Project::getProjectDataById($this->slave_db, $partner['pid']);
 			
 		$extradata = array(
+			/*
 			'project' => array(
 				'status' 	=> 1, // 1: active, 2: closed
 				'sample' 	=> $project['sample'],
@@ -280,6 +281,7 @@ class Action_SettingPartner extends _Action_Support {
 				'end_at' 	=> $project['end_at'],
 				'ip_access' => $project['ip_access'],
 			),
+			*/
 			'partner' => array(
 				'status' 		=> 0, // 0: active, 1: closed
 				'sample' 		=> $partner['sample_size'],

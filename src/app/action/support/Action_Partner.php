@@ -40,6 +40,8 @@ class Action_Partner extends _Action_Support {
 			$this->registValidatorMap('quotafull', 		'Validator_Input', 'Quotafull URL is required.');
 			$this->registValidatorMap('sample_size', 	'Validator_Input', 'Sample size is required.');
 			$this->registValidatorMap('hits_limit', 	'Validator_Input', 'Hits limit is required.');
+			
+			$this->registValidatorMap('status');
 		}
 
 		try {
@@ -260,6 +262,9 @@ class Action_Partner extends _Action_Support {
 		}
 
 		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
+
+		LogManager::debug("status of partner is " . $status);
+
 		if(Logic_Partner::changePartnerStatus($this->master_db, $id, $status)) {
 			$snapshot = Logic_Snapshot::getSnapshotDataByPartnerId($this->slave_db, $id);
 
@@ -289,6 +294,7 @@ class Action_Partner extends _Action_Support {
 		$project = Logic_Project::getProjectDataById($this->slave_db, $partner['pid']);
 			
 		$extradata = array(
+			/*
 			'project' => array(
 				'status' 	=> $project['status'], // 1: active, 2: closed
 				'sample' 	=> $project['sample'],
@@ -296,6 +302,7 @@ class Action_Partner extends _Action_Support {
 				'end_at' 	=> $project['end_at'],
 				'ip_access' => $project['ip_access'],
 			),
+			*/
 			'partner' => array(
 				'status' => 0, // 0: active, 1: closed
 				'sample' => $partner['sample_size'],

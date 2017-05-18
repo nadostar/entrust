@@ -66,12 +66,15 @@ class Logic_Live extends _Logic_App {
 
 	public static function closeStatusOfPartner(_DatabaseAccess $dao, $id) {
 		try {
+			$dao->startTransaction();
 			$condition = "`id` = ?";
 			$condition_params = array($id);
 
 			$dao->update('partner', array('status' => 1), $condition, $condition_params);
+			$dao->commit();
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
+			$dao->rollback();
 			return false;
 		}
 
@@ -80,12 +83,15 @@ class Logic_Live extends _Logic_App {
 
 	public static function closeStatusOfProject(_DatabaseAccess $dao, $id) {
 		try {
+			$dao->startTransaction();
 			$condition = "`id` = ?";
 			$condition_params = array($id);
 
-			$dao->update('project', array('status' => 1), $condition, $condition_params);
+			$dao->update('project', array('status' => 2), $condition, $condition_params);
+			$dao->commit();
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
+			$dao->rollback();
 			return false;
 		}
 
@@ -124,14 +130,17 @@ class Logic_Live extends _Logic_App {
 
 	public static function changeProgressOfLink(_DatabaseAccess $dao, $accessid) {
 		try {
+			$dao->startTransaction();
 			$condition = "accessid = ?";
 			$condition_params = array($accessid);
 
 			$params = array('progress' => 1);
 
 			$dao->update('history', $params, $condition, $condition_params, false);
+			$dao->commit();
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
+			$dao->rollback();
 			return false;
 		}
 
@@ -140,12 +149,15 @@ class Logic_Live extends _Logic_App {
 
 	public static function changeSnapshotExtra(_DatabaseAccess $dao, $accesskey, $extra) {
 		try {
+			$dao->startTransaction();
 			$condition = "`accesskey` = ?";
 			$condition_params = array($accesskey);
 
 			$dao->update('snapshot', array('extra' => json_encode($extra)), $condition, $condition_params, false);
+			$dao->commit();
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
+			$dao->rollback();
 			return false;
 		}
 
@@ -154,12 +166,15 @@ class Logic_Live extends _Logic_App {
 
 	public static function alreadyUseLink(_DatabaseAccess $dao, $link_id, $link_no) {
 		try {
+			$dao->startTransaction();
 			$condition = "`link_id` = ? AND `link_no` = ?";
 			$condition_params = array($link_id, $link_no);
 
 			$dao->update('useful_link', array('useful' => 1), $condition, $condition_params);
+			$dao->commit();
 		} catch (Exception $e) {
 			LogManager::error($e->getMessage());
+			$dao->rollback();
 			return false;
 		}
 

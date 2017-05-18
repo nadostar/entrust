@@ -8,9 +8,13 @@ class Logic_Link extends _Logic_App {
 	public static function getLinkDataLimited(_DatabaseAccess $dao, $pid, $limit, $offset) {
 		$ret = array();
 
-		$sql = "SELECT `link`.`id`, `link`.`name`, `link`.`type`, `link`.`updated_at`, `project`.`name` AS `project_name`, `pid`
-				FROM `link` LEFT JOIN `project` ON `project`.`id` = `pid` 
-				WHERE `pid` = ?";
+		$sql = "SELECT `link`.`id`, `link`.`name`, `link`.`type`, `link`.`updated_at`, `link`.`pid`, `p`.`name` AS `project_name`,
+  				(SELECT COUNT(1) FROM `useful_link` WHERE link_id = `link`.`id`) AS `urls`,
+  				(SELECT COUNT(1) from `useful_link` WHERE `link_id` = `link`.`id` AND `useful` = 1) AS `used_urls`
+  				FROM `link`, `project` `p`
+ 				WHERE 1 = 1
+   				AND `link`.`pid` = `p`.`id`
+   				AND `p`.`id` = ?";
 
 		$sql.= " LIMIT ? OFFSET ?";
 

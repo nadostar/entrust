@@ -178,7 +178,7 @@ class Action_Project extends _Action_Support {
 
 				$params['id'] = $id;
 				$result = Logic_Project::updateProjectData($this->master_db, $params);
-
+				/*
 				$data = Logic_Snapshot::getSnapshotDataByProjectId($this->slave_db, $id);
 				
 				if(!empty($data)) {
@@ -192,6 +192,7 @@ class Action_Project extends _Action_Support {
 						Logic_Snapshot::updateSnapshotExtra($this->master_db, $row['accesskey'], $extra);
 					}
 				}
+				*/
 			}
 
 			if($result) {
@@ -250,7 +251,7 @@ class Action_Project extends _Action_Support {
 		}
 
 		$result_map = array('status' => true, 'message' => 'The data has been save changed!');
-
+		/*
 		if(Logic_Project::changeProjectStatus($this->master_db, $id, $status)) {
 			$data = Logic_Snapshot::getSnapshotDataByProjectId($this->slave_db, $id);
 			
@@ -266,6 +267,13 @@ class Action_Project extends _Action_Support {
 			$result_map['status'] = false;
 			$result_map['message'] = 'transaction fail!';
 		}
+		*/
+
+		if(!Logic_Project::changeProjectStatus($this->master_db, $id, $status)) {
+			$result_map['status'] = false;
+			$result_map['message'] = 'transaction fail!';
+		}
+
 
 		$this->sendJsonResult($result_map);
 	}
