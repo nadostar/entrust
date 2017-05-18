@@ -5,7 +5,7 @@
                 <div class="dropdown profile-element">
                     <a href="#">
                     <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold"><?php es($LOGIN_USER->getName());?></strong>
-                    </span> <span class="text-muted text-xs block">Dev <b class="caret"></b></span> </span> </a>
+                    </span> <span class="text-muted text-xs block"><?php es($LOGIN_USER->getAdminId());?> </span> </span> </a>
                 </div>
             </li>
             <li class="<?php if($target['tree'] == 'Dashboard') es('active')?>">
