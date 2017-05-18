@@ -29,9 +29,15 @@ class Action_Admin extends _Action_Support {
 			
 			$this->registValidatorMap('id');
 			
-			$this->registValidatorMap('email', 	'Validator_Input', 'Emaill is required.');
-			$this->registValidatorMap('name', 	'Validator_Input', 'Name is required.');
-			$this->registValidatorMap('permission_id');
+			if($this->action != 'changePassword') {
+				$this->registValidatorMap('email', 	'Validator_Input', 'Emaill is required.');
+				$this->registValidatorMap('name', 	'Validator_Input', 'Name is required.');
+				$this->registValidatorMap('permission_id');
+			}
+
+			$this->registValidatorMap('current_password');
+			$this->registValidatorMap('new_password');
+			$this->registValidatorMap('confirm_password');
 		}
 
 		try {
@@ -57,6 +63,9 @@ class Action_Admin extends _Action_Support {
 				break;
 			case 'initPassword':
 				$this->initPassword();
+				break;
+			case 'changePassword':
+				$this->changePassword();
 				break;
 			default:
 				$target = array(
@@ -185,6 +194,44 @@ class Action_Admin extends _Action_Support {
 			}
 		}
 		
+		$this->sendJsonResult($result_map);
+	}
+
+	private function changePassword() {
+		$id 				= $this->getQuery('id');
+		$current_password 	= $this->cryptPassword($this->getQuery('current_password'));
+		$new_password 		= $this->cryptPassword($this->getQuery('new_password'));
+		$confirm_password 	= $this->cryptPassword($this->getQuery('confirm_password'));
+
+		$result_map = array('status' => true, 'message' => 'The password has been save changed!');
+
+		$data = Logic_Admin::verifyPassword($this->system_db, $id, $current_password);
+		LogManager::debug($data);
+		if($data['found'] == 0) {
+			$this->error_msg = "The current password is inconsistent!";
+		} else {
+			if($new_password != $confirm_password) {
+				$this->error_msg = "The new password is inconsistent!";
+			}
+		}
+
+		$params = array(
+			'id' => $id,
+			'password' => $confirm_password
+		);
+
+		if(strlen($this->error_msg) > 0) {
+			$result_map['status'] = false;
+			$result_map['message'] = $this->error_msg;
+		} else {
+			if(Logic_Admin::changePassword($this->system_db, $params)) {
+				Logic_Log::adminlog($this->log_db, $this->login_session->getAdminId(), Category::PASSWORD_CHANGE, $params, $this->ip_address);
+			} else {
+				$result_map['status'] = false;
+				$result_map['message'] = 'transaction fail!';
+			}
+		}
+
 		$this->sendJsonResult($result_map);
 	}
 }

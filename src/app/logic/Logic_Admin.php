@@ -33,6 +33,14 @@ class Logic_Admin extends _Logic_App {
 		return $ret;
 	}
 
+	public static function verifyPassword(_DatabaseAccess $dao, $id, $password) {
+		$sql = "SELECT COUNT(1) AS 'found' FROM `admin` WHERE `id` = ? AND `password` = ?";
+		
+		$param = array($id, $password);
+
+		return $dao->selectOne($sql, $param);
+	}
+
 	public static function getAdminDataById(_DatabaseAccess $dao, $id) {
 		$sql = "select 	a.id,
 						a.email,

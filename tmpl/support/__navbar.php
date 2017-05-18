@@ -101,27 +101,74 @@
 </nav>
 </div>
 
-    <div id="password-dialog" class="modal fade" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Admin Password</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <form role="form">
-                                <div class="form-group"><label>Current Password</label> <input type="password" name="password1" class="form-control"></div>
-                                <div class="form-group"><label>New Password</label> <input type="password" name="password2" class="form-control"></div>
-                                <div class="form-group"><label>Confirm Password</label> <input type="password" name="password2" class="form-control"></div>
-                                <div>
-                                    <button class="btn btn-lg btn-rounded btn-primary btn-block" type="submit"><strong>SaveChanges</strong></button>
-                                </div>
-                            </form>
-                        </div>
+<div id="password-dialog" class="modal fade" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Admin Password</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form role="form">
+                            <input type="hidden" name="id" value="<?php es($LOGIN_USER->getAdminId());?>">
+                            <div class="form-group"><label>Current Password</label> <input type="password" id="cpass" name="current_password" class="form-control"></div>
+                            <div class="form-group"><label>New Password</label> <input type="password" id="npass1" name="new_password" class="form-control"></div>
+                            <div class="form-group"><label>Confirm Password</label> <input type="password" id="npass2" name="confirm_password" class="form-control"></div>
+                            <div>
+                                <button class="password-form btn btn-lg btn-rounded btn-primary btn-block" type="submit"><strong>SaveChanges</strong></button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+    $('body')
+        .on('click', "button.password-form", function(){
+            $('#password-dialog').modal();
+
+            var $button = $(this);
+            var $form = $button.parents('form');
+            var params = $form.serializeJSON();
+            var url = "<?php url('support/admin/?m=changePassword', true, false); ?>";
+
+            swal({
+              title: "Are you sure?",
+              text: "Would you like to save change this data.",
+              type: "info",
+              showCancelButton: true,
+              closeOnConfirm: false,
+              showLoaderOnConfirm: true,
+            },
+            function(){
+                $.post(url, params).done(function(response){
+                    var result = JSON.parse(response);
+
+                    if(result.status){
+                        toastr.success(result.message);
+                        swal("Success!", result.message, "success");
+
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 500);
+
+                    } else {
+                        toastr.error(result.message);
+                        swal("Fail!", result.message, "error");
+                    }
+                }).fail(function(response, status, err){
+                    toastr.error(response.responseText, err);
+                    swal(err, response.responseText, "error");
+                });
+            });
+
+            return false;
+        });
+});
+</script>
