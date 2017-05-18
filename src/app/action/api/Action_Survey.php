@@ -76,8 +76,13 @@ class Action_Survey extends _Action_Api {
 	}
 
 	protected function logicProc($snapshot, $params) {
-		$project = $snapshot['extra']['project'];
+		$project = Logic_Live::findProjectById($this->slave_db, $snapshot['pid']);
 		$partner = $snapshot['extra']['partner'];
+
+		if($project === false) {
+			LogManager::debug("[ERROR] code=73730, params=".json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
 
 		// 프로젝트 유효성 체크
 		if($project['status'] != 1) {
@@ -126,7 +131,6 @@ class Action_Survey extends _Action_Api {
 				if(($history_cnt['found'] + 1) >= $partner['hits']) {
 					$extra = $snapshot['extra'];
 					$extra['partner']['status'] = 1;	// 파트너 상태 종료 처리
-					LogManager::debug($extra);
 
 					Logic_Live::changeSnapshotExtra($this->master_db, $snapshot['accesskey'], $extra);
 					Logic_Live::closeStatusOfPartner($this->master_db, $snapshot['partner_id']);

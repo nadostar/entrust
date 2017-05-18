@@ -4,6 +4,14 @@
 * 
 */
 class Logic_Live extends _Logic_App {
+	public static function findProjectById(_DatabaseAccess $dao, $id) {
+		$sql = "SELECT `sample`, `free`, `ip_access`, `start_at`, `end_at`, `status` FROM `project` WHERE `id` = ?";
+
+		$params = array($id);
+
+		return $dao->selectOne($sql, $params);
+	}
+
 	public static function findPartnerUrls(_DatabaseAccess $dao, $id) {
 		$sql = "SELECT `complate_url`, `screenout_url`, `quotafull_url` FROM `partner` WHERE `id` = ?";
 		
@@ -18,14 +26,6 @@ class Logic_Live extends _Logic_App {
 		$params=  array($accesskey);
 
 		return $dao->selectOne($sql, $params);
-	}
-
-	public static function findSnapshotArrayById(_DatabaseAccess $dao, $project_id) {
-		$sql = "SELECT * FROM `snapshot` WHERE `pid` = ?";
-
-		$params=  array($project_id);
-
-		return $dao->selectArray($sql, $params);
 	}
 
 	public static function findHistoryById(_DatabaseAccess $dao, $accessid) {

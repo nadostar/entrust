@@ -56,7 +56,7 @@ class Action_Receive extends _Action_Api {
 
 	protected function validateParameters($secret, $status) {
 		if(empty($secret)) {
-			LogManager::debug("[ERROR] code=55560");
+			LogManager::debug("[ERROR] code=45559");
 			$this->jumpToPage(Env::APP_URL.'api/error/');
 		}
 
@@ -116,8 +116,13 @@ class Action_Receive extends _Action_Api {
 
 	protected function logicProc($snapshot, $history, $params) {
 		
-		$project = $snapshot['extra']['project'];
+		$project = Logic_Live::findProjectById($this->slave_db, $snapshot['pid']);
 		$partner = $snapshot['extra']['partner'];
+
+		if($project === false) {
+			LogManager::debug("[ERROR] code=53730, params=".json_encode($params));
+			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+		}
 
 		// 프로젝트 유효성 체크
 		if($project['status'] != 1) {
@@ -132,21 +137,33 @@ class Action_Receive extends _Action_Api {
 		}
 
 		$stat = Logic_Live::findStatisticsById($this->slave_db, $snapshot);
-		
-		if($stat['complate_count'] > $partner['sample']) {
-			LogManager::debug("[ERROR] code=53733, params=".json_encode($params));
+		if($partner['sample'] > 0) { 
+			if($stat['complate_count'] >= $partner['sample']) {
+				LogManager::debug("[ERROR] code=53733, params=".json_encode($params));
+				$this->jumpToPage(Env::APP_URL.'api/not_supported/');
+			}
+		}
+
+		if($stat['complate_total'] >= $project['sample']) {
+			LogManager::debug("[ERROR] code=53734, params=".json_encode($params));
 			$this->jumpToPage(Env::APP_URL.'api/not_supported/');
 		}
 
 		$url = "";
 		switch ($params['status']) {
 			case 'complete':
-				if(($stat['complate_count'] + 1) >= $partner['sample']) {
-					$extra = $snapshot['extra'];
-					$extra['partner']['status'] = 1;	// 파트너 상태 종료 처리
+				if($partner['sample'] > 0) {
+					if(($stat['complate_count'] + 1) >= $partner['sample']) {
+						$extra = $snapshot['extra'];
+						$extra['partner']['status'] = 1;	// 파트너 상태 종료 처리
 
-					Logic_Live::changeSnapshotExtra($this->master_db, $snapshot['accesskey'], $extra);
-					Logic_Live::closeStatusOfPartner($this->master_db, $snapshot['partner_id']);
+						Logic_Live::changeSnapshotExtra($this->master_db, $snapshot['accesskey'], $extra);
+						Logic_Live::closeStatusOfPartner($this->master_db, $snapshot['partner_id']);
+					}
+				}
+
+				if(($stat['complate_total'] + 1) >= $project['sample']) {
+					Logic_Live::closeStatusOfProject($this->master_db, $snapshot['pid']);
 				}
 
 				$url = $this->makeURL($partner['complate_url'], array($params['esid']));
@@ -165,8 +182,6 @@ class Action_Receive extends _Action_Api {
 				Logic_Log::accesslog($this->log_db, $snapshot['accesskey'], $this->receive_status_map[$params['status']], $params, $this->ip_address);
 			}
 		}
-
-		LogManager::debug("partner redirect url is " . $url);
 
 		$this->jumpToPage($url);
 	}
