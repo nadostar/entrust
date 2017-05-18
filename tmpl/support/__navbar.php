@@ -4,7 +4,7 @@
             <li class="nav-header">
                 <div class="dropdown profile-element">
                     <a href="#">
-                    <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">Admin</strong>
+                    <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold"><?php es($LOGIN->getName());?></strong>
                     </span> <span class="text-muted text-xs block">Dev <b class="caret"></b></span> </span> </a>
                 </div>
             </li>
