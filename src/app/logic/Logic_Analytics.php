@@ -92,4 +92,11 @@ class Logic_Analytics extends _Logic_App {
 
 		return $ret;
 	}
+
+	public static function exportDataByAccesskey(_DatabaseAccess $dao, $accesskey) {
+		$sql = "SELECT `accessid` AS 'ESID', `accesskey` AS 'Partner Key', `uid` AS 'Partner UID', `url` AS 'Survey URLs', `progress` AS 'Progress', `created_at` AS 'Issue Date' FROM history WHERE `accesskey` = ?";
+		$param = array($accesskey);
+
+		return $dao->selectArray($sql, $param);
+	}
 }

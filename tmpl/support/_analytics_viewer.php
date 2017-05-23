@@ -37,7 +37,7 @@
 			            <tbody>
 			            <?php if(!empty($data['partner'])): ?>
 			            <?php foreach ($data['partner'] as $idx => $row): ?>
-			            <tr class="viewer-log read" data-partnerid="<?php es($row['id']); ?>" data-pid="<?php es($row['pid']); ?>" data-linkid="<?php es($row['link_id']); ?>">
+			            <tr>
 			                <td><?php es($row['id']); ?></td>
 			                <td><?php es($row['name']);?></td>
 			                <td><?php echo MasterData::getCountry($row['country']); ?></td>
@@ -56,7 +56,8 @@
 			                </td>
 			                <td><?php echo MasterData::getStatus($row['status']); ?></td>
 			                <td>
-			                	<button type="button" class="export btn btn-primary btn-xs" data-id="<?php es($row['id']); ?>"><i class="fa fa-share"></i> Export</button>
+			                	<button type="button" class="viewer-log btn btn-primary btn-circle btn-outline" data-partnerid="<?php es($row['id']); ?>" data-pid="<?php es($row['pid']); ?>" data-linkid="<?php es($row['link_id']); ?>" data-placement="top" title="Views"><i class="fa fa-list"></i> </button>
+			                	<button type="button" class="export btn btn-primary btn-circle btn-outline" data-id="<?php es($row['id']); ?>" data-placement="top" title="Export"><i class="fa fa-share"></i> </button>
 			                </td>
 			            </tr>
 			            <?php endforeach; ?>

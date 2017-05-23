@@ -10,6 +10,13 @@ class Action_Analytics extends _Action_Support {
 
 	private $action = null;
 
+	private $export_opt_disp_colum_name = true;
+
+	/** CSV 컬럼명 */
+	private $exportColumNameArray = array(
+		"ESID", "Partner Key", "Partner UID", "Survey URL", "Progress", "Issue Date"
+	);
+
 	protected function initialize() {
 		parent::initialize();
 
@@ -26,6 +33,7 @@ class Action_Analytics extends _Action_Support {
 			$this->registValidatorMap('id');
 
 			$this->registValidatorMap('pid');
+			$this->registValidatorMap('export_id');
 		}
 
 		try {
@@ -49,6 +57,9 @@ class Action_Analytics extends _Action_Support {
 				break;
 			case 'historylog':
 				$this->historylog();
+				break;
+			case 'export':
+				$this->export();
 				break;
 			default:
 				$target = array(
@@ -149,5 +160,28 @@ class Action_Analytics extends _Action_Support {
 		$this->output->assign('pager', $pager->output($params));
 
 		$this->output->setTmpl('support/_analytics_history_viewer.php');
+	}
+
+	private function export() {
+		$this->output = new Output_CSV();
+		set_time_limit(0);
+
+		$date = date('ymdHis');
+		$file = $date.'.csv';
+		$this->output->setExportFileName($file);
+		$this->output->realtimeOutput();
+
+		if($this->export_opt_disp_colum_name) {
+			$this->output->assignRow($this->exportColumNameArray);
+		}
+		$id = $this->getQuery('export_id');
+
+		$snapshot = Logic_Snapshot::getSnapshotDataByPartnerId($this->slave_db, $id);
+		$data = Logic_Analytics::exportDataByAccesskey($this->slave_db, $snapshot['accesskey']);
+
+		foreach ($data as $k => $v) {
+			$v['Progress'] = MasterData::getAccessLogCategory($v['Progress']);
+			$this->output->assignRow($v);
+		}
 	}
 }

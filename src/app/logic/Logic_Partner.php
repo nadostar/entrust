@@ -32,6 +32,20 @@ class Logic_Partner extends _Logic_App {
 		return $dao->selectOne($sql, $param);
 	}
 
+	public static function getPartnerInvoiceDataById(_DatabaseAccess $dao, $id) {
+		$sql = "SELECT `partner`.`id`, `partner`.`name`, `partner`.`pid`, `partner`.`country`, `project`.`name` AS 'project_name', `project`.`sales`,
+					   `partner`.`link_id`, `link`.`name` AS 'link_name', `partner`.`sample_size`, `partner`.`hits_limit`
+				  FROM `partner`, `project`, `link`
+				 WHERE  1 = 1
+				  AND `partner`.`pid` = `project`.`id`
+				  AND `partner`.`link_id` = `link`.`id`
+				  AND `partner`.`id` = ?";
+
+		$param = array($id);
+
+		return $dao->selectOne($sql, $param);
+	}
+
 	public static function getHistoryCountByAccesskey(_DatabaseAccess $dao, $accesskey) {
 		$sql = "SELECT COUNT(1) AS `found` FROM `history` WHERE `accesskey` = ?";
 

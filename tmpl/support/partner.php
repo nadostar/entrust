@@ -98,6 +98,26 @@
     </div>
 </div>
 
+<div id="invoice-dialog" class="modal fade" aria-hidden="true">
+<div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Invoice Edit</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group"><label>Quantity</label> <input id="inv_quantity" type="text" placeholder="0" class="form-control"></div>
+                    <div class="form-group"><label>Unit Price</label> <input id="inv_price" type="text" placeholder="0.00" class="form-control"></div>
+                    <div class="form-group"><label>Other Price</label> <input id="inv_other" type="text" placeholder="0.00" class="form-control"></div>
+                    <div class="form-group"><label>Remarks</label> <textarea id="inv_remark" rows="3" class="form-control"></textarea></div>
+                    <div><button class="invoice-confirm btn btn-sm btn-primary pull-right m-t-n-xs" type="button"><strong>Confirm</strong></button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="<?php url('script/entrust.js'); ?>"></script>
 <script type="text/javascript">
 var urls = {
@@ -108,6 +128,8 @@ var urls = {
     'accesskey': "<?php url('support/partner/?m=accesskey', true, false); ?>",
     'show': "<?php url('support/partner/?m=show', true, false); ?>",
     'ajaxLink': "<?php url('support/partner/?m=ajaxLink', true, false); ?>",
+    'invoice': "<?php url('support/invoice/?m=invoice', true, false); ?>",
+    'payment': "<?php url('support/invoice/?m=payment', true, false); ?>",
 };
 
 var global = new Entrust(urls);
@@ -145,8 +167,6 @@ $(function(){
             };
 
             $('#viewer').load(urls['viewer'], params, function(response, status, err){
-                console.log('loaded', status);
-
                 if(status == 'error') {
                     toastr.error(response, status);
                 }
@@ -316,6 +336,103 @@ $(function(){
             }).fail(function(response, status, err){
                 toastr.error(response.responseText, err);
             });
+
+            return false;
+        })
+        .on('click', "button.invoice", function(){
+            var $button = $(this);
+            var id = $button.data('id');
+
+            if(!id) {
+                toastr.error("Missing ID.");
+                return;
+            }
+
+            var params = {
+                'id': id
+            };
+
+            $('#viewer').load(urls['invoice'], params, function(response, status, err){
+                if(status == 'error') {
+                    toastr.error(response, status);
+                }
+            });
+
+            return false;
+        })
+        .on('click', "button.invoice-edit", function(){
+            $('#inv_quantity').val('');
+            $('#inv_price').val('');
+            $('#inv_other').val('');
+            $('#inv_remark').val('');
+            $('#invoice-dialog').modal();
+
+            return false;
+        })
+        .on('click', "button.invoice-save", function(){
+
+            var params = $('#invoice-form').serializeJSON();
+
+            swal({
+              title: "Are you sure?",
+              text: "Make A Invoice",
+              type: "info",
+              showCancelButton: true,
+              closeOnConfirm: false,
+              showLoaderOnConfirm: true,
+            },
+            function(){
+                $.post(urls['payment'], params).done(function(response){
+
+                    var result = JSON.parse(response);
+
+                    if(result.status) {
+                        toastr.success(result.message);
+                        swal("Success!", result.message, "success");                        
+                    } else {
+                        toastr.error(result.message);
+                        swal("Fail!", result.message, "error");
+
+                    }
+                }).fail(function(response, status, err){
+                    console.log(response, status, err);
+                    toastr.error(response.responseText, err);
+                    swal(err, result.message, "error");
+                });
+            });
+
+            return false;
+        })
+        .on('click', "button.invoice-confirm", function(){
+            var quantity = parseInt($('#inv_quantity').val());
+            var price = parseFloat($('#inv_price').val());
+            var other = parseFloat($('#inv_other').val());
+            var remark = $('#inv_remark').val();
+            var _total = quantity * price + other;
+            
+            total = Math.round(_total*100)/100;
+
+            $('#quantity').html(quantity);
+            $('#price').html('$' + price);
+            $('#other').html('$' + other);
+
+            if(remark != '') {
+                $('#remark').show();
+                $('#remark').html(remark);  
+            } else {
+                $('#remark').hide();
+                $('#remark').html("");  
+            }
+            
+            $('#total').html('$' + total);
+
+            // invoice-form
+            $('#q').val(quantity);
+            $('#p').val(price);
+            $('#o').val(other);
+            $('#r').val(remark);
+            
+            $('#invoice-dialog').modal('hide');
 
             return false;
         })

@@ -68,7 +68,7 @@
                 </div>
                 <div class="hr-line-dashed"></div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">For Complate *</label>
+                    <label class="col-sm-2 control-label">For Complete *</label>
                     <div class="col-sm-9">
                 		<input type="text" name="complate" class="form-control" value="<?php es($partner['complate_url']);?>" placeholder="http://">
                     </div>
@@ -88,13 +88,13 @@
                 <div class="hr-line-dashed"></div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Sample size *</label>
-                    <div class="col-sm-2">
+                    <div class="col-sm-3">
                         <input type="text" name="sample_size" class="form-control" value="<?php es($partner['sample_size']);?>" placeholder="0"> 
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Hits limit *</label>
-                    <div class="col-sm-2">
+                    <div class="col-sm-3">
                         <input type="text" name="hits_limit" class="form-control" value="<?php es($partner['hits_limit']);?>" placeholder="0">
                     </div>
                 </div>

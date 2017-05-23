@@ -136,6 +136,10 @@ class MasterData {
 		3 => 'Quotafull',
 	);
 
+	public static function getAccessLogCategory($val) {
+		return self::$accesslog_category_map[$val];
+	}
+
 	public static function getAccessLogCategoryMap() {
 		return self::$accesslog_category_map;
 	}

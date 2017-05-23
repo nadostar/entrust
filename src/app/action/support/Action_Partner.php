@@ -76,6 +76,9 @@ class Action_Partner extends _Action_Support {
 			case 'ajaxLink':
 				$this->ajaxLink();
 				break;
+			case 'invoice':
+				$this->invoice();
+				break;
 			default:
 				$target = array(
 					'tree' => 'Survey',
@@ -367,5 +370,36 @@ class Action_Partner extends _Action_Support {
 		);
 
 		$this->sendJsonResult($data);
+	}
+
+	private function invoice() {
+		$id = $this->getQuery('id');
+
+		$partner = Logic_Partner::getPartnerInvoiceDataById($this->slave_db, $id);
+
+		$snapshot = array(
+			'pid' 			=> $partner['pid'],
+			'link_id' 		=> $partner['link_id'],
+			'partner_id' 	=> $partner['id']
+		);
+
+		$statdata = Logic_Stat::getStatDataByIds($this->slave_db, $snapshot);
+
+		$partner['c'] = $statdata['complate_count'];
+		$partner['s'] = $statdata['screenout_count'];
+		$partner['q'] = $statdata['quotafull_count'];
+
+		$ir_a = 0;
+		try {
+			$ir_a = intval($statdata['complate_count']) / (intval($statdata['complate_count']) + intval($statdata['screenout_count'])) * 100;
+		} catch (Exception $e) {
+			$ir_a = 0;
+		}
+
+		$partner['ir_a'] = $ir_a;
+		$partner['invoice_no'] = 'INV-'.date("ymdH-is");
+
+		$this->output->assign('partner', $partner);
+		$this->output->setTmpl('support/_partner_invoice.php');
 	}
 }

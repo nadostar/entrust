@@ -181,16 +181,14 @@ class DatabaseAccessMySQL extends _DatabaseAccess
             }
         }
 		
-        /*
-        if (!isset($insert_param["create_date"])) {
-            $column_arry[] = "create_date";
+        if (!isset($insert_param["created_at"])) {
+            $column_arry[] = "created_at";
             $value_arry[] = "now()";
         }
-        if (!isset($insert_param["update_date"])) {
-            $column_arry[] = "update_date";
+        if (!isset($insert_param["updated_at"])) {
+            $column_arry[] = "updated_at";
             $value_arry[] = "now()";
         }
-        */
 		
         $query = "INSERT INTO $table (" . implode(',', $column_arry) . ") VALUES (" . implode(',', $value_arry) . ")";
         /////////////////////////////////////////

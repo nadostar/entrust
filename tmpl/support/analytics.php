@@ -25,6 +25,10 @@
     <div id="viewer" class="row"></div>
 </div>
 
+<?php start_form_tag('support/analytics/?m=export', 'post', 'export_form'); ?>
+    <input type="hidden" id="export_id" name="export_id">
+<?php end_form_tag(); ?>
+
 <?php include __DIR__ . '/__footer.php'; ?>
 </div>
 
@@ -34,7 +38,7 @@ var urls = {
     'search': "<?php url('support/analytics/?m=search', true, false); ?>",
     'viewer': "<?php url('support/analytics/?m=viewer', true, false); ?>",
     'blocklog': "<?php url('support/analytics/?m=blocklog', true, false); ?>",
-    'historylog': "<?php url('support/analytics/?m=historylog', true, false); ?>"
+    'historylog': "<?php url('support/analytics/?m=historylog', true, false); ?>",
 };
 
 var global = new Entrust(urls);
@@ -73,7 +77,7 @@ $(function(){
             global.pager($(this));
             return false;
         })
-        .on('click', "tr.viewer-log", function(){
+        .on('click', "button.viewer-log", function(){
             var $button = $(this);
             var pid = $button.data('pid');
 
@@ -99,7 +103,7 @@ $(function(){
             global.pager2($(this), urls['blocklog'], "ip-viewer");
             return false;
         })
-        .on('click', "tr.viewer-log", function(){
+        .on('click', "button.viewer-log", function(){
             var $button = $(this);
             var id = $button.data('partnerid');
 
@@ -114,6 +118,20 @@ $(function(){
                     toastr.error(response, status);
                 }
             });
+
+            return false;
+        })
+        .on('click', "button.export", function(){
+            var $button = $(this);
+            var id = $button.data('id');
+
+            if(!id) {
+                toastr.error("Missing ID.");
+                return;
+            }
+
+            document.getElementById('export_id').value = id;
+            document.export_form.submit();
 
             return false;
         })

@@ -46,6 +46,7 @@
                 <td><?php echo MasterData::getStatus($row['status']); ?></td>
                 <td><?php es($row['updated_at']);?></td>
                 <td>
+                    <button type="button" class="invoice btn btn-primary btn-circle btn-outline" data-id="<?php es($row['id']); ?>" style="<?php if($row['status'] == 0) es("display: none;"); ?>" data-placement="top" title="Invoice"><i class="fa fa-credit-card"></i></button>
                     <button type="button" class="accesskey btn btn-danger btn-circle btn-outline" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] > 0) es("display: none;"); ?>" data-placement="top" title="Accesskey"><i class="fa fa-key"></i></button>
                     <button id="survey-link_<?php es($row['id']); ?>" type="button" class="survey-link btn btn-warning btn-circle btn-outline" data-id="<?php es($row['id']); ?>" style="<?php if($row['found'] == 0) es("display: none;"); ?>" data-placement="top" title="Survey Links"><i class="fa fa-lightbulb-o"></i></button>
                     <button type="button" class="setting-toggle btn btn-primary btn-circle btn-outline" data-id="<?php es($row['id']); ?>" data-status="<?php es($row['status']); ?>"><?php echo MasterData::getPartnerStatusControl($row['status']); ?></button>
