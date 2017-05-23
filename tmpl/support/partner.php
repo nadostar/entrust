@@ -107,9 +107,9 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="form-group"><label>Quantity</label> <input id="inv_quantity" type="text" placeholder="0" class="form-control"></div>
-                    <div class="form-group"><label>Unit Price</label> <input id="inv_price" type="text" placeholder="0.00" class="form-control"></div>
-                    <div class="form-group"><label>Other Price</label> <input id="inv_other" type="text" placeholder="0.00" class="form-control"></div>
+                    <div class="form-group"><label>Quantity</label> <input id="inv_quantity" type="text" placeholder="0" class="form-control" value="0"></div>
+                    <div class="form-group"><label>Unit Price</label> <input id="inv_price" type="text" placeholder="0.00" class="form-control" value="0.00"></div>
+                    <div class="form-group"><label>Other Price</label> <input id="inv_other" type="text" placeholder="0.00" class="form-control" value="0.00"></div>
                     <div class="form-group"><label>Remarks</label> <textarea id="inv_remark" rows="3" class="form-control"></textarea></div>
                     <div><button class="invoice-confirm btn btn-sm btn-primary pull-right m-t-n-xs" type="button"><strong>Confirm</strong></button></div>
                 </div>
